@@ -1,8 +1,7 @@
 package com.example.paceto_doapp.data.local
 
 import androidx.room.TypeConverter
-import com.example.paceto_doapp.data.local.Category
-import com.example.paceto_doapp.data.local.Priority
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 class TaskConvertors {
@@ -16,6 +15,17 @@ class TaskConvertors {
     @TypeConverter
     fun toLocalDateTime(dateTimeString: String?): LocalDateTime? {
         return dateTimeString?.let { LocalDateTime.parse(it) }
+    }
+
+    // LocalDate
+    @TypeConverter
+    fun fromLocalDate(date: LocalDate?): String? {
+        return date?.toString()
+    }
+
+    @TypeConverter
+    fun toLocalDate(dateString: String?): LocalDate? {
+        return dateString?.let { LocalDate.parse(it) }
     }
 
     // Category enum

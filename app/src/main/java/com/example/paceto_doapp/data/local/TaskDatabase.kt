@@ -8,7 +8,7 @@ import androidx.room.TypeConverters
 
 @Database(
     entities = [Task::class],
-    version = 1
+    version = 2
 )
 @TypeConverters(TaskConvertors::class)
 abstract class TaskDatabase: RoomDatabase() {
@@ -26,7 +26,9 @@ abstract class TaskDatabase: RoomDatabase() {
                     context.applicationContext,
                     TaskDatabase::class.java,
                     "task_database"
-                ).build()
+                )
+                    .fallbackToDestructiveMigration(true)
+                    .build()
 
                 INSTANCE = instance
                 instance

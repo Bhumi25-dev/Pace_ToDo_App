@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
@@ -41,14 +42,18 @@ class TaskListScreenVM @Inject constructor(
 
     fun onEvent(event: TaskEvent){
         when(event){
-            is TaskEvent.SaveTask -> viewModelScope.launch {
-                repo.createTask(event.task)
-            }
             is TaskEvent.DeleteTask -> viewModelScope.launch {
                 repo.deleteTask(event.task)
             }
             is TaskEvent.UpdateTaskIsCompleted -> viewModelScope.launch {
-                repo.updateTaskIsCompleted(event.taskId,event.isCompleted)
+
+                val completionDate = if (event.isCompleted) LocalDate.now() else null
+
+                repo.updateTaskIsCompleted(
+                    taskId = event.taskId,
+                    isCompleted = event.isCompleted,
+                    completeDate = completionDate
+                )
             }
             is TaskEvent.SetCategoryFilter -> _categoryFilter.value = event.category
         }

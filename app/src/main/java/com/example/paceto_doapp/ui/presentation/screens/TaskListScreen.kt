@@ -1,5 +1,8 @@
 package com.example.paceto_doapp.ui.presentation.screens
 
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -17,58 +20,114 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.paceto_doapp.ui.presentation.components.TaskDetailsCard
 import com.example.paceto_doapp.ui.presentation.components.TaskScreenCard
+import com.example.paceto_doapp.ui.presentation.events.TaskEvent
 import com.example.paceto_doapp.viewModel.TaskListScreenVM
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskListScreen(
     viewModel: TaskListScreenVM = hiltViewModel(),
+    onEditClick: (String) -> Unit
 ) {
     val state by viewModel.state.collectAsState()
 
-    Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Text(
-                        text = "All Tasks",
-                        fontWeight = FontWeight.Bold
+    // STATE: Tracks the id of the selected task
+    var selectedTaskById by remember { mutableStateOf<String?>(null) }
+    //Dynamically find the fresh task from your state list
+    var selectedTask = state.tasks.find { it.id == selectedTaskById }
+
+    // ANIMATION: Smoothly transitions the blur radius
+    val blurRadius by animateDpAsState(
+        targetValue = if (selectedTask != null) 16.dp else 0.dp,
+        label = "background_blur"
+    )
+
+    Box(
+        modifier = Modifier.fillMaxSize()
+    ) {
+
+        Scaffold(
+            topBar = {
+                CenterAlignedTopAppBar(
+                    title = {
+                        Text(
+                            text = "All Tasks",
+                            fontWeight = FontWeight.Bold
+                        )
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = {}) {
+                            Icon(
+                                imageVector = Icons.Default.ArrowBack,
+                                contentDescription = "back"
+                            )
+                        }
+                    },
+                    actions = {
+                        IconButton(onClick = {}) {
+                            Icon(
+                                imageVector = Icons.Default.Search,
+                                contentDescription = "Search"
+                            )
+                        }
+                    },
+                    scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(),
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        scrolledContainerColor = MaterialTheme.colorScheme.surfaceVariant
+                    ),
+                )
+            },
+            modifier = Modifier.blur(blurRadius)
+        ) { innerPadding ->
+            LazyColumn(
+                modifier = Modifier.padding(innerPadding)
+            ) {
+                items(state.tasks) { task ->
+                    TaskScreenCard(
+                        task = task,
+                        onCardClick = {
+                            selectedTaskById = task.id
+                        }
                     )
-                },
-                navigationIcon = {
-                    IconButton(onClick = {}) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "back"
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = {}) {
-                        Icon(
-                            imageVector = Icons.Default.Search,
-                            contentDescription = "Search"
-                        )
-                    }
-                },
-                scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(),
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                    scrolledContainerColor = MaterialTheme.colorScheme.surfaceVariant
-                ),
-            )
+                }
+            }
+
         }
-    ) {innerPadding ->
-        LazyColumn(
-            modifier = Modifier.padding(innerPadding)
-        ) {
-            items(state.tasks){ task->
-                TaskScreenCard(task)
+
+        selectedTask?.let { task ->
+            Dialog(
+                onDismissRequest = { selectedTask = null },
+                properties = DialogProperties(usePlatformDefaultWidth = false)
+                ) {
+                TaskDetailsCard(
+                    task = task,
+                    onNavigateBack = { selectedTask = null },
+                    onMarkedAsComplete = {
+                        viewModel.onEvent(TaskEvent.UpdateTaskIsCompleted(task.id, !task.isCompleted))
+                    },
+                    onEditClick = {
+                        selectedTask = null
+                        onEditClick(task.id)
+                    },
+                    onDeleteClick = {
+                        viewModel.onEvent(TaskEvent.DeleteTask(task))
+                        selectedTask = null
+                    },
+                )
             }
         }
 

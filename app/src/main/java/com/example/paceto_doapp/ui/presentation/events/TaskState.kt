@@ -5,5 +5,6 @@ import com.example.paceto_doapp.data.local.Task
 
 data class TaskState (
     val tasks : List<Task> = emptyList(),
-    val selectedCategory: Category? = null
+    val selectedCategory: Category? = null,
+    val markedAsComplete: Boolean = false
 )

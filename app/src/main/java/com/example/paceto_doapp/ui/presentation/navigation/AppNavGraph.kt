@@ -5,9 +5,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.paceto_doapp.ui.presentation.screens.TaskFormScreen
 import com.example.paceto_doapp.ui.presentation.screens.TaskListScreen
 import com.example.paceto_doapp.viewModel.TaskFormScreenVM
@@ -41,18 +43,30 @@ fun AppNavGraph(
             }
 
             composable(route = Screen.TaskListScreen.route) {
-                val viewModel: TaskListScreenVM = hiltViewModel()
+                val taskListVM: TaskListScreenVM = hiltViewModel()
 
                 TaskListScreen(
-                    viewModel = viewModel
+                    viewModel = taskListVM,
+                    onEditClick = { taskId ->
+                        navController.navigate(Screen.TaskFormScreen.passId(taskId))
+                    }
                 )
             }
 
-            composable(route = Screen.TaskFormScreen.route) {
-                val viewModel: TaskFormScreenVM = hiltViewModel()
+            composable(
+                route = "${Screen.TaskFormScreen.route}?taskId={taskId}",
+                arguments = listOf(
+                    navArgument("taskId") {
+                        type = NavType.StringType
+                        nullable = true
+                        defaultValue = null
+                    }
+                )
+            ) {
+                val taskFormVM: TaskFormScreenVM = hiltViewModel()
 
                 TaskFormScreen(
-                    viewModel = viewModel,
+                    viewModel = taskFormVM,
                     onNavigateBack = { navController.popBackStack() }
                 )
             }

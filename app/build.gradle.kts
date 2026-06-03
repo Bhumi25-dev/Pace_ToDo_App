@@ -8,16 +8,19 @@ plugins {
 
 android {
     namespace = "com.example.paceto_doapp"
-    compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
-    }
+    compileSdk = 36
+
+    // 1. Standardize compileSdk for Android 14
 
     defaultConfig {
         applicationId = "com.example.paceto_doapp"
-        minSdk = 36
-        targetSdk = 36
+
+        // 2. Lower minSdk to allow installation
+        minSdk = 26
+
+        // 3. Align targetSdk with Android 14
+        targetSdk = 34
+
         versionCode = 1
         versionName = "1.0"
 

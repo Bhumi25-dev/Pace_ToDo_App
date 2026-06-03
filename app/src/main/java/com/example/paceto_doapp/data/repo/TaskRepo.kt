@@ -4,6 +4,7 @@ import com.example.paceto_doapp.data.local.Category
 import com.example.paceto_doapp.data.local.Task
 import com.example.paceto_doapp.data.local.TaskDao
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDate
 import javax.inject.Inject
 
 class TaskRepo @Inject constructor(
@@ -36,7 +37,7 @@ class TaskRepo @Inject constructor(
     }
 
     //update isCompleted
-    suspend fun updateTaskIsCompleted(taskId: String, isCompleted: Boolean){
-        localDao.updateTaskIsCompleted(taskId, isCompleted)
+    suspend fun updateTaskIsCompleted(taskId: String, isCompleted: Boolean, completeDate: LocalDate?){
+        localDao.updateTaskIsCompleted(taskId, isCompleted,completeDate)
     }
 }

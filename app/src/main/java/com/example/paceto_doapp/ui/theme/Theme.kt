@@ -1,58 +1,107 @@
+@file:Suppress("DEPRECATION")
+
 package com.example.paceto_doapp.ui.theme
 
 import android.app.Activity
-import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
 
-private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+// ─── Light — warm, earthy, cozy ──────────────────────────────────────────────
+private val LightColorScheme = lightColorScheme(
+    primary                 = WarmTerracotta,
+    onPrimary               = WarmCream,
+    primaryContainer        = WarmTerracottaLight,
+    onPrimaryContainer      = WarmOnBackground,
+
+    secondary               = WarmBrown,
+    onSecondary             = WarmCream,
+    secondaryContainer      = DaysLeftChipBg,
+    onSecondaryContainer    = WarmBrown,
+
+    tertiary                = WarmSand,
+    onTertiary              = WarmOnBackground,
+    tertiaryContainer       = WarmSurfaceVariant,
+    onTertiaryContainer     = WarmOnSurface,
+
+    background              = WarmCream,
+    onBackground            = WarmOnBackground,
+
+    surface                 = WarmSurface,
+    onSurface               = WarmOnBackground,
+    surfaceVariant          = WarmSurfaceVariant,
+    onSurfaceVariant        = WarmOnSurface,
+
+    outline                 = WarmOutline,
+    outlineVariant          = WarmSurfaceVariant,
+
+    error                   = TaskUrgentText,
+    onError                 = WarmCream,
+    errorContainer          = TaskUrgentChip,
+    onErrorContainer        = TaskUrgentText,
 )
 
-private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
+// ─── Dark — intense, ember-lit, high contrast ─────────────────────────────────
+private val DarkColorScheme = darkColorScheme(
+    primary                 = EmberOrange,
+    onPrimary               = CharcoalBackground,
+    primaryContainer        = EmberDeep,
+    onPrimaryContainer      = WarmWhite,
 
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+    secondary               = EmberLight,
+    onSecondary             = CharcoalBackground,
+    secondaryContainer      = CharcoalSurfaceVar,
+    onSecondaryContainer    = EmberLight,
+
+    tertiary                = BurntTertiary,
+    onTertiary              = CharcoalBackground,
+    tertiaryContainer       = CharcoalSurface,
+    onTertiaryContainer     = WarmWhiteSecondary,
+
+    background              = CharcoalBackground,
+    onBackground            = WarmWhite,
+
+    surface                 = CharcoalSurface,
+    onSurface               = WarmWhite,
+    surfaceVariant          = CharcoalSurfaceVar,
+    onSurfaceVariant        = WarmWhiteSecondary,
+
+    outline                 = DarkOutline,
+    outlineVariant          = CharcoalSurfaceVar,
+
+    error                   = TaskUrgentTextDark,
+    onError                 = CharcoalBackground,
+    errorContainer          = TaskUrgentSurfaceDark,
+    onErrorContainer        = TaskUrgentTextDark,
 )
 
 @Composable
 fun PaceToDoAppTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
+    // Dynamic color intentionally disabled — our warm/intense palette IS the brand.
+    // Enabling dynamic color would replace it with the wallpaper palette on Android 12+.
+    val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
 
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
+    val view = LocalView.current
+    if (!view.isInEditMode) {
+        SideEffect {
+            val window = (view.context as Activity).window
+            window.statusBarColor = colorScheme.background.toArgb()
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
+        }
     }
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = Typography,
-        content = content
+        typography  = Typography,
+        content     = content
     )
 }
