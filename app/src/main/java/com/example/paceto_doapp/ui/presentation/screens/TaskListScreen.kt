@@ -2,6 +2,7 @@ package com.example.paceto_doapp.ui.presentation.screens
 
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -39,7 +40,8 @@ import com.example.paceto_doapp.viewModel.TaskListScreenVM
 @Composable
 fun TaskListScreen(
     viewModel: TaskListScreenVM = hiltViewModel(),
-    onEditClick: (String) -> Unit
+    onEditClick: (String) -> Unit,
+    onNavigateBack: () -> Unit
 ) {
     val state by viewModel.state.collectAsState()
 
@@ -67,8 +69,9 @@ fun TaskListScreen(
                             fontWeight = FontWeight.Bold
                         )
                     },
+                    windowInsets = WindowInsets(0.dp),
                     navigationIcon = {
-                        IconButton(onClick = {}) {
+                        IconButton(onClick = onNavigateBack) {
                             Icon(
                                 imageVector = Icons.Default.ArrowBack,
                                 contentDescription = "back"
@@ -105,27 +108,26 @@ fun TaskListScreen(
                     )
                 }
             }
-
         }
 
         selectedTask?.let { task ->
             Dialog(
-                onDismissRequest = { selectedTask = null },
+                onDismissRequest = { selectedTaskById = null },
                 properties = DialogProperties(usePlatformDefaultWidth = false)
                 ) {
                 TaskDetailsCard(
                     task = task,
-                    onNavigateBack = { selectedTask = null },
+                    onNavigateBack = { selectedTaskById = null },
                     onMarkedAsComplete = {
                         viewModel.onEvent(TaskEvent.UpdateTaskIsCompleted(task.id, !task.isCompleted))
                     },
                     onEditClick = {
-                        selectedTask = null
+                        selectedTaskById = null
                         onEditClick(task.id)
                     },
                     onDeleteClick = {
                         viewModel.onEvent(TaskEvent.DeleteTask(task))
-                        selectedTask = null
+                        selectedTaskById = null
                     },
                 )
             }

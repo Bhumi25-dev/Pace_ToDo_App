@@ -10,8 +10,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.paceto_doapp.ui.presentation.screens.HomeScreen
 import com.example.paceto_doapp.ui.presentation.screens.TaskFormScreen
 import com.example.paceto_doapp.ui.presentation.screens.TaskListScreen
+import com.example.paceto_doapp.viewModel.HomeScreenVM
 import com.example.paceto_doapp.viewModel.TaskFormScreenVM
 import com.example.paceto_doapp.viewModel.TaskListScreenVM
 
@@ -30,12 +32,17 @@ fun AppNavGraph(
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = Screen.TaskListScreen.route,
+            startDestination = Screen.Home.route,
             modifier = modifier.padding(innerPadding)
         ) {
 
             composable(route = Screen.Home.route) {
-                // HomeScreen()
+                val homeVM: HomeScreenVM = hiltViewModel()
+
+                HomeScreen(
+                    viewModel = homeVM,
+                    onSeeAllClick = { navController.navigate(Screen.TaskListScreen.route) }
+                )
             }
 
             composable(route = Screen.Calendar.route) {
@@ -49,7 +56,8 @@ fun AppNavGraph(
                     viewModel = taskListVM,
                     onEditClick = { taskId ->
                         navController.navigate(Screen.TaskFormScreen.passId(taskId))
-                    }
+                    },
+                    onNavigateBack = { navController.popBackStack() }
                 )
             }
 

@@ -2,7 +2,7 @@ package com.example.paceto_doapp.ui.presentation.navigation
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -16,7 +16,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 fun BottomNavBar(navController: NavController) {
 
     val items = listOf(
-        BottomNavItem(Screen.TaskListScreen.route,"All Tasks",Icons.Default.List),
+        BottomNavItem(Screen.Home.route,"Home",Icons.Default.Home),
         BottomNavItem(Screen.TaskFormScreen.route,"Create Task",Icons.Default.Add)
     )
 
@@ -30,13 +30,21 @@ fun BottomNavBar(navController: NavController) {
                 label = { item.title },
                 selected = currentRoute == item.route,
                 onClick = {
-                    navController.navigate(route = item.route){
-                        // CRITICAL: Prevents a massive backstack of duplicate screens
-                        popUpTo(navController.graph.findStartDestination().id) {
-                            saveState = true
+                    // Prevent navigating if we are already explicitly on that route
+                    if (currentRoute != item.route) {
+                        navController.navigate(route = item.route) {
+                            // Pop everything up to the start destination to clear the stack
+                            // Using the string route is safer in Compose than using the integer ID
+                            val startRoute = navController.graph.findStartDestination().route ?: Screen.Home.route
+                            popUpTo(startRoute)
+                            // Prevents opening the same screen multiple times
+                            launchSingleTop = true
+                        // Note: saveState and restoreState are intentionally removed!
                         }
-                        launchSingleTop = true // Prevents opening the same screen 5 times
-                        restoreState = true // Remembers where you were on that tab
+                    } else {
+                        // Optional: If they click Home WHILE on Home, you can pop the stack
+                        // to clear any child screens (like All Tasks) that might be open
+                        navController.popBackStack(Screen.Home.route, inclusive = false)
                     }
                 }
             )

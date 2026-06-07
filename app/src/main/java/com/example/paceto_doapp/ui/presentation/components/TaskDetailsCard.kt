@@ -318,7 +318,7 @@ fun TaskDetailsCard(
                             buttonColor = markAsCompletedColor(isDark, isCompleted),
                             borderColor = markAsCompletedTint(isDark, isCompleted),
                             modifier = Modifier.padding(),
-                            onClick = { if (isCompleted) onMarkedAsComplete(task.id) }
+                            onClick = { onMarkedAsComplete(task.id) }
                         )
                     }
                 }
