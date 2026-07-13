@@ -87,8 +87,13 @@ dependencies {
     // 3. Room Compiler (Uses KSP instead of KAPT)
     ksp("androidx.room:room-compiler:$roomVersion")
 
+    implementation("com.github.skydoves:cloudy:0.5.0")
+
     // Optional: Room Test helpers
     testImplementation("androidx.room:room-testing:$roomVersion")
+
+    //Google Icons Library
+    implementation("androidx.compose.material:material-icons-core")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

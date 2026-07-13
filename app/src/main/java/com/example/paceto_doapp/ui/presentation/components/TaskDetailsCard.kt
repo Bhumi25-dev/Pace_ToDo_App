@@ -38,22 +38,22 @@ import com.example.paceto_doapp.data.local.Category
 import com.example.paceto_doapp.data.local.Priority
 import com.example.paceto_doapp.data.local.Task
 import com.example.paceto_doapp.ui.icons.reopen_window
-import com.example.paceto_doapp.ui.presentation.util.daysChipColor
-import com.example.paceto_doapp.ui.presentation.util.daysChipContainerColor
+import com.example.paceto_doapp.ui.presentation.util.getColorMethods.daysChipColor
+import com.example.paceto_doapp.ui.presentation.util.getColorMethods.daysChipContainerColor
 import com.example.paceto_doapp.ui.presentation.util.formatDate
-import com.example.paceto_doapp.ui.presentation.util.getCardBorderColor
-import com.example.paceto_doapp.ui.presentation.util.getCardContainerColor
-import com.example.paceto_doapp.ui.presentation.util.getCardContentColor
+import com.example.paceto_doapp.ui.presentation.util.getColorMethods.getCardBorderColor
+import com.example.paceto_doapp.ui.presentation.util.getColorMethods.getCardContainerColor
+import com.example.paceto_doapp.ui.presentation.util.getColorMethods.getCardContentColor
 import com.example.paceto_doapp.ui.presentation.util.getCategoryIcon
 import com.example.paceto_doapp.ui.presentation.util.getIsCompletedIcon
-import com.example.paceto_doapp.ui.presentation.util.iconBoxColor
-import com.example.paceto_doapp.ui.presentation.util.iconTint
+import com.example.paceto_doapp.ui.presentation.util.getColorMethods.iconBoxColor
+import com.example.paceto_doapp.ui.presentation.util.getColorMethods.iconTint
 import com.example.paceto_doapp.ui.presentation.util.isUrgent
-import com.example.paceto_doapp.ui.presentation.util.markAsCompletedBorder
-import com.example.paceto_doapp.ui.presentation.util.markAsCompletedColor
-import com.example.paceto_doapp.ui.presentation.util.markAsCompletedTint
+import com.example.paceto_doapp.ui.presentation.util.getColorMethods.markAsCompletedBorder
+import com.example.paceto_doapp.ui.presentation.util.getColorMethods.markAsCompletedColor
+import com.example.paceto_doapp.ui.presentation.util.getColorMethods.markAsCompletedTint
 import com.example.paceto_doapp.ui.presentation.util.remainingTime
-import com.example.paceto_doapp.ui.presentation.util.underlineColor
+import com.example.paceto_doapp.ui.presentation.util.getColorMethods.underlineColor
 import com.example.paceto_doapp.ui.theme.PaceToDoAppTheme
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -284,9 +284,9 @@ fun TaskDetailsCard(
                     FullWidthButton(
                         title = if (isCompleted) "Task Finished on ${task.taskCompleteDate.toString()}" else "Mark as Complete",
                         icon = getIsCompletedIcon(isCompleted),
-                        buttonTint = markAsCompletedTint(isDark, isCompleted),
-                        buttonColor = markAsCompletedColor(isDark, isCompleted),
-                        borderColor = markAsCompletedBorder(isDark, isCompleted),
+                        buttonTint = markAsCompletedTint(isCompleted),
+                        buttonColor = markAsCompletedColor(isCompleted),
+                        borderColor = markAsCompletedBorder(isCompleted),
                         modifier = Modifier.padding(top = 16.dp),
                         onClick = { if(!isCompleted) onMarkedAsComplete(task.id) }
                     )
@@ -314,9 +314,9 @@ fun TaskDetailsCard(
                         FullWidthButton(
                             title = "Reopen Task",
                             icon = reopen_window,
-                            buttonTint = markAsCompletedTint(isDark, isCompleted),
-                            buttonColor = markAsCompletedColor(isDark, isCompleted),
-                            borderColor = markAsCompletedTint(isDark, isCompleted),
+                            buttonTint = markAsCompletedTint(isCompleted),
+                            buttonColor = markAsCompletedColor(isCompleted),
+                            borderColor = markAsCompletedTint(isCompleted),
                             modifier = Modifier.padding(),
                             onClick = { onMarkedAsComplete(task.id) }
                         )

@@ -1,5 +1,6 @@
 package com.example.paceto_doapp.ui.presentation.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -34,10 +36,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.paceto_doapp.data.local.Category
 import com.example.paceto_doapp.ui.presentation.components.CategorizationDropdown
 import com.example.paceto_doapp.ui.presentation.components.DatePickerField
@@ -54,7 +58,7 @@ fun TaskFormScreen(
     viewModel: TaskFormScreenVM = hiltViewModel(),
     onNavigateBack: () -> Unit
 ) {
-    val state by viewModel.state.collectAsState()
+    val state by viewModel.state.collectAsStateWithLifecycle()
 
     TaskFormContent(
         state = state,
@@ -76,6 +80,7 @@ fun TaskFormContent(
     val scrollState = rememberScrollState()
 
     Scaffold(
+        containerColor = Color.Transparent,
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
@@ -85,6 +90,14 @@ fun TaskFormContent(
                     )
                 },
                 windowInsets = WindowInsets(0.dp),
+                modifier = Modifier.background(
+                    MaterialTheme.colorScheme.background.copy(alpha = 0.85f)
+                ),
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color.Transparent,
+                    scrolledContainerColor = Color.Transparent,
+                    titleContentColor = MaterialTheme.colorScheme.primary
+                ),
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
@@ -94,48 +107,42 @@ fun TaskFormContent(
                     }
                 },
                 scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(),
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                    scrolledContainerColor = MaterialTheme.colorScheme.surfaceVariant
-                ),
             )
         },
         // The Pinned Bottom Button!
         bottomBar = {
-            Surface(shadowElevation = 8.dp) {
-                Button(
-                    onClick = {
-                        onEvent(TaskFormEvent.SaveTask(onSuccessfulSave = onNavigateBack))
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
+            Button(
+                onClick = {
+                    onEvent(TaskFormEvent.SaveTask(onSuccessfulSave = onNavigateBack))
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 16.dp, end = 16.dp, bottom = 24.dp),
+                elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp),
+                enabled = state.title.isNotBlank() && state.endDate.isAfter(state.startDate)
                 ) {
-                    Row (
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center,
-                        modifier = Modifier.fillMaxWidth()
-                    ){
-                        Icon(
-                            imageVector = Icons.Filled.CheckCircle,
-                            contentDescription = "Create Task"
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Create Task")
-                    }
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center,
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.CheckCircle,
+                        contentDescription = "Create Task"
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Create Task")
                 }
             }
         }
     ) { innerPadding ->
-
-        // THIS is the column that scrolls
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding) // Ensures it doesn't hide behind the bars
                 .verticalScroll(scrollState) // Makes the content scrollable!
         ) {
+
+            Spacer(modifier = Modifier.height(innerPadding.calculateTopPadding()))
 
             // Text Fields
             TaskTextField(
@@ -191,9 +198,7 @@ fun TaskFormContent(
                 )
             }
 
-            // Added a little spacer at the bottom so the last card doesn't
-            // sit directly on top of the "Create Task" button when scrolled down
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(innerPadding.calculateBottomPadding() + 24.dp))
         }
     }
 

@@ -8,6 +8,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -43,6 +44,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.paceto_doapp.ui.presentation.components.TaskScreenCard
 import com.example.paceto_doapp.ui.presentation.components.TotalTasksCard
 import com.example.paceto_doapp.viewModel.HomeScreenVM
@@ -57,7 +59,7 @@ fun HomeScreen(
     onSeeAllClick: () -> Unit
 ) {
 
-    val state by viewModel.state.collectAsState()
+    val state by viewModel.state.collectAsStateWithLifecycle()
 
     val formatter = DateTimeFormatter.ofPattern("dd EEE", Locale.getDefault())
     val dateText = LocalDate.now().format(formatter).uppercase()
@@ -128,7 +130,7 @@ fun HomeScreen(
                 windowInsets = WindowInsets(0.dp),
                 actions = {
                     Surface(
-                        modifier = Modifier,
+                        modifier = Modifier.padding(8.dp),
                         shape = RoundedCornerShape(12.dp),
                         border = BorderStroke(1.dp,MaterialTheme.colorScheme.onErrorContainer),
                         color = MaterialTheme.colorScheme.surfaceVariant,
@@ -183,7 +185,8 @@ fun HomeScreen(
                 }
             }
             LazyColumn(
-                modifier = Modifier
+                modifier = Modifier,
+                contentPadding = PaddingValues(bottom = 96.dp)
             ) {
                 items(state.pendingTasksList){ task ->
                     TaskScreenCard(

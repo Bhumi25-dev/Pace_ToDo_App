@@ -1,4 +1,4 @@
-package com.example.paceto_doapp.ui.presentation.util
+package com.example.paceto_doapp.ui.presentation.util.getColorMethods
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable

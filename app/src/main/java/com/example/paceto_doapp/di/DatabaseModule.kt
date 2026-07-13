@@ -1,6 +1,7 @@
 package com.example.paceto_doapp.di
 
 import android.content.Context
+import com.example.paceto_doapp.data.local.FocusDao
 import com.example.paceto_doapp.data.local.TaskDao
 import com.example.paceto_doapp.data.local.TaskDatabase
 import dagger.Module
@@ -22,6 +23,12 @@ object DatabaseModule {
 
     @Provides
     fun provideTaskDao(database: TaskDatabase): TaskDao {
-        return database.dao
+        return database.taskDao
     }
+
+    @Provides
+    fun provideFocusDao(database: TaskDatabase): FocusDao {
+        return database.focusDao
+    }
+
 }

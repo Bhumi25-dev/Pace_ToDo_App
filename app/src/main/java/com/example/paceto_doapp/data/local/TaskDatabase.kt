@@ -7,13 +7,14 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 
 @Database(
-    entities = [Task::class],
-    version = 2
+    entities = [Task::class, FocusRecords::class, FocusTask::class],
+    version = 3
 )
 @TypeConverters(TaskConvertors::class)
 abstract class TaskDatabase: RoomDatabase() {
 
-    abstract val dao: TaskDao
+    abstract val taskDao: TaskDao
+    abstract val focusDao: FocusDao
 
     //to prevent multiple saves at the same time
     companion object {
@@ -27,7 +28,7 @@ abstract class TaskDatabase: RoomDatabase() {
                     TaskDatabase::class.java,
                     "task_database"
                 )
-                    .fallbackToDestructiveMigration(true)
+                    .fallbackToDestructiveMigration()
                     .build()
 
                 INSTANCE = instance

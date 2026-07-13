@@ -32,20 +32,22 @@ import androidx.compose.ui.unit.dp
 import com.example.paceto_doapp.data.local.Category
 import com.example.paceto_doapp.data.local.Priority
 import com.example.paceto_doapp.data.local.Task
-import com.example.paceto_doapp.ui.presentation.util.daysChipColor
-import com.example.paceto_doapp.ui.presentation.util.daysChipContainerColor
+import com.example.paceto_doapp.ui.presentation.util.getColorMethods.daysChipColor
+import com.example.paceto_doapp.ui.presentation.util.getColorMethods.daysChipContainerColor
 import com.example.paceto_doapp.ui.presentation.util.formatDate
-import com.example.paceto_doapp.ui.presentation.util.getCardBorderColor
-import com.example.paceto_doapp.ui.presentation.util.getCardContainerColor
-import com.example.paceto_doapp.ui.presentation.util.getCardContentColor
+import com.example.paceto_doapp.ui.presentation.util.getColorMethods.getCardBorderColor
+import com.example.paceto_doapp.ui.presentation.util.getColorMethods.getCardContainerColor
+import com.example.paceto_doapp.ui.presentation.util.getColorMethods.getCardContentColor
 import com.example.paceto_doapp.ui.presentation.util.getCategoryIcon
-import com.example.paceto_doapp.ui.presentation.util.iconBoxColor
-import com.example.paceto_doapp.ui.presentation.util.iconTint
+import com.example.paceto_doapp.ui.presentation.util.getColorMethods.iconBoxColor
+import com.example.paceto_doapp.ui.presentation.util.getColorMethods.iconTint
 import com.example.paceto_doapp.ui.presentation.util.isUrgent
 import com.example.paceto_doapp.ui.presentation.util.remainingTime
-import com.example.paceto_doapp.ui.presentation.util.statusChipColor
-import com.example.paceto_doapp.ui.presentation.util.statusChipContentColor
-import com.example.paceto_doapp.ui.presentation.util.underlineColor
+import com.example.paceto_doapp.ui.presentation.util.getColorMethods.statusChipColor
+import com.example.paceto_doapp.ui.presentation.util.getColorMethods.statusChipContentColor
+import com.example.paceto_doapp.ui.presentation.util.getColorMethods.underlineColor
+import com.example.paceto_doapp.ui.presentation.util.glowBorder
+import com.example.paceto_doapp.ui.presentation.util.shimmerSweep
 import com.example.paceto_doapp.ui.theme.PaceToDoAppTheme
 import java.time.LocalDateTime
 import java.util.UUID
@@ -137,11 +139,30 @@ fun TaskScreenCard(
     val badgeContentColor = MaterialTheme.colorScheme.onTertiaryContainer
 
     // ─────────────────────────────────────────────────────────────────────────
+    // Urgent cards get an animated pulsing glow border — standard cards stay clean
+    val urgentGlowModifier = if (isUrgent && !task.isCompleted) {
+        Modifier.glowBorder(
+            color = MaterialTheme.colorScheme.error,
+            glowRadius = 14.dp,
+            cornerRadius = 12.dp
+        )
+    } else if (!task.isCompleted) {
+        Modifier.glowBorder(
+            color = MaterialTheme.colorScheme.primary,
+            glowRadius = 8.dp,
+            cornerRadius = 12.dp,
+            alpha = 0.25f
+        )
+    } else {
+        Modifier
+    }
+
     // The main outer container
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp),
+            .padding(16.dp)
+            .then(urgentGlowModifier),
         shape = RoundedCornerShape(12.dp),
         border = BorderStroke(1.dp, getCardBorderColor(task.isCompleted, isUrgent)),
         colors = CardDefaults.cardColors(
@@ -203,19 +224,34 @@ fun TaskScreenCard(
                             )
                         }
                     }
-                    // RIGHT SIDE: Category Icon Box
+                    // RIGHT SIDE: Category Icon Box — shimmer sweep for a shining effect
                     Surface(
                         modifier = Modifier
                             .padding(top = 20.dp)
-                            .size(52.dp),
+                            .size(52.dp)
+                            .glowBorder(
+                                color = if (isUrgent && !task.isCompleted)
+                                    MaterialTheme.colorScheme.error
+                                else
+                                    MaterialTheme.colorScheme.primary,
+                                glowRadius = 10.dp,
+                                cornerRadius = 12.dp,
+                                alpha = if (task.isCompleted) 0.1f else null
+                            ),
                         shape = RoundedCornerShape(12.dp),
-                        color = iconTint(task.isCompleted,isUrgent),
+                        color = iconTint(task.isCompleted, isUrgent),
                     ) {
-                        Box(contentAlignment = Alignment.Center) {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier.shimmerSweep(
+                                highlightColor = iconBoxColor(task.isCompleted, isUrgent)
+                                    .copy(alpha = 0.15f)
+                            )
+                        ) {
                             Icon(
                                 imageVector = getCategoryIcon(task.category),
                                 contentDescription = "Category Icon",
-                                tint = iconBoxColor(task.isCompleted,isUrgent),
+                                tint = iconBoxColor(task.isCompleted, isUrgent),
                                 modifier = Modifier.size(32.dp)
                             )
                         }

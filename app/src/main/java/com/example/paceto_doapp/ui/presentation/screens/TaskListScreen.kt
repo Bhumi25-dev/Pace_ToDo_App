@@ -1,13 +1,23 @@
 package com.example.paceto_doapp.ui.presentation.screens
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -16,39 +26,46 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.paceto_doapp.ui.presentation.components.TaskDetailsCard
 import com.example.paceto_doapp.ui.presentation.components.TaskScreenCard
 import com.example.paceto_doapp.ui.presentation.events.TaskEvent
 import com.example.paceto_doapp.viewModel.TaskListScreenVM
+import com.skydoves.cloudy.cloudy
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskListScreen(
     viewModel: TaskListScreenVM = hiltViewModel(),
+    onAddTaskClick: () -> Unit,
     onEditClick: (String) -> Unit,
     onNavigateBack: () -> Unit
 ) {
-    val state by viewModel.state.collectAsState()
+    val state by viewModel.state.collectAsStateWithLifecycle()
 
     // STATE: Tracks the id of the selected task
     var selectedTaskById by remember { mutableStateOf<String?>(null) }
     //Dynamically find the fresh task from your state list
-    var selectedTask = state.tasks.find { it.id == selectedTaskById }
+    val selectedTask = state.tasks.find { it.id == selectedTaskById }
 
     // ANIMATION: Smoothly transitions the blur radius
     val blurRadius by animateDpAsState(
@@ -56,20 +73,38 @@ fun TaskListScreen(
         label = "background_blur"
     )
 
+    val listState = rememberLazyListState()
+
+    val isFabVisible by remember {
+        derivedStateOf {
+            !listState.isScrollInProgress || listState.firstVisibleItemIndex == 0
+        }
+    }
+
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
 
         Scaffold(
+            modifier = Modifier
+                .fillMaxSize(),
             topBar = {
                 CenterAlignedTopAppBar(
                     title = {
                         Text(
-                            text = "All Tasks",
+                            text = "My Tasks",
                             fontWeight = FontWeight.Bold
                         )
                     },
                     windowInsets = WindowInsets(0.dp),
+                    modifier = Modifier.background(
+                        MaterialTheme.colorScheme.background.copy(alpha = 0.85f)
+                    ),
+                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                        containerColor = Color.Transparent,
+                        scrolledContainerColor = Color.Transparent,
+                        titleContentColor = MaterialTheme.colorScheme.primary
+                    ),
                     navigationIcon = {
                         IconButton(onClick = onNavigateBack) {
                             Icon(
@@ -86,18 +121,34 @@ fun TaskListScreen(
                             )
                         }
                     },
-                    scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(),
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                        scrolledContainerColor = MaterialTheme.colorScheme.surfaceVariant
-                    ),
                 )
             },
-            modifier = Modifier.blur(blurRadius)
+            floatingActionButton = {
+                AnimatedVisibility(
+                    visible = isFabVisible,
+                    enter = slideInHorizontally ( initialOffsetX = { it } ),
+                    exit = slideOutHorizontally ( targetOffsetX = { it } )
+                ) {
+                    SmallFloatingActionButton(
+                        onClick = onAddTaskClick,
+                        modifier = Modifier
+                            .navigationBarsPadding()
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.AddCircle,
+                            contentDescription = "Add Ritual"
+                        )
+                    }
+                }
+            }
         ) { innerPadding ->
             LazyColumn(
-                modifier = Modifier.padding(innerPadding)
+                state = listState,
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(
+                    top = innerPadding.calculateTopPadding(),
+                    bottom = innerPadding.calculateBottomPadding() + 96.dp
+                )
             ) {
                 items(state.tasks) { task ->
                     TaskScreenCard(

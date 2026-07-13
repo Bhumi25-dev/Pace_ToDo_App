@@ -91,7 +91,6 @@ fun CategorizationDropdown(
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ) {
-            // Pro-tip: If Category is an Enum, you can iterate through it!
             Category.entries.forEach { category ->
                 DropdownMenuItem(
                     text = {
