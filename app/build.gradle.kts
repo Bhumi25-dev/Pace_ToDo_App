@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.paceto_doapp"
+    namespace = "com.okay.paceto_doapp"
     compileSdk = 36
 
     // 1. Standardize compileSdk for Android 14
