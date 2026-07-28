@@ -9,10 +9,8 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -22,20 +20,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SmallFloatingActionButton
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -49,10 +43,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -61,6 +51,7 @@ import com.okay.paceto_doapp.data.local.durations
 import com.okay.paceto_doapp.ui.presentation.components.FocusCard
 import com.okay.paceto_doapp.ui.presentation.components.FocusFormBottomSheet
 import com.okay.paceto_doapp.ui.presentation.components.GenericFilterBar
+import com.okay.paceto_doapp.ui.presentation.components.TopAppBarText
 import com.okay.paceto_doapp.ui.presentation.events.FocusListEvent
 import com.okay.paceto_doapp.viewModel.FocusListVM
 
@@ -113,26 +104,7 @@ fun FocusListScreen(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.Start
                         ) {
-                            Text(
-                                text = buildAnnotatedString {
-                                    withStyle(
-                                        style = SpanStyle(
-                                            color = MaterialTheme.colorScheme.onBackground,
-                                            fontWeight = FontWeight.ExtraBold
-                                        )
-                                    ) {
-                                        append("Build Your ")
-                                    }
-                                    withStyle(
-                                        style = SpanStyle(
-                                            color = MaterialTheme.colorScheme.primary,
-                                            fontWeight = FontWeight.ExtraBold
-                                        )
-                                    ) {
-                                        append("Ritual")
-                                    }
-                                }
-                            )
+                            TopAppBarText("Build Your, ","Ritual")
                         }
                     },
                     modifier = Modifier.background(
@@ -144,28 +116,11 @@ fun FocusListScreen(
                         titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
                     ),
                     windowInsets = WindowInsets(0.dp),
-                    actions = {
-                        Surface(
-                            modifier = Modifier.padding(8.dp),
-                            shape = RoundedCornerShape(12.dp),
-                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.onErrorContainer),
-                            color = MaterialTheme.colorScheme.surfaceVariant,
-                        ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Icon(
-                                    imageVector = Icons.Default.Person,
-                                    contentDescription = "Category Icon",
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.size(32.dp)
-                                )
-                            }
-                        }
-                    }
                 )
                 GenericFilterBar(
                     items = durations,
                     selectedItem = null,
-                    onItemSelect = {},
+                    onItemSelect = {viewModel.onEvent(FocusListEvent.SetDurationFilter(it))},
                     labelProvider = { it?.name ?: "All" },
                     modifier = Modifier.padding(bottom = 8.dp)
                 )

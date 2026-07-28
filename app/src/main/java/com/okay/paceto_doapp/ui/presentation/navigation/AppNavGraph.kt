@@ -1,7 +1,7 @@
 package com.okay.paceto_doapp.ui.presentation.navigation
 
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -18,12 +18,13 @@ import androidx.navigation.navArgument
 import com.okay.paceto_doapp.ui.presentation.screens.FocusListScreen
 import com.okay.paceto_doapp.ui.presentation.screens.HomeScreen
 import com.okay.paceto_doapp.ui.presentation.screens.PomodoroScreen
-import com.okay.paceto_doapp.ui.presentation.screens.ProfileScreen
+import com.okay.paceto_doapp.ui.presentation.screens.ProfileDisplayScreen
 import com.okay.paceto_doapp.ui.presentation.screens.TaskFormScreen
 import com.okay.paceto_doapp.ui.presentation.screens.TaskListScreen
 import com.okay.paceto_doapp.viewModel.FocusListVM
 import com.okay.paceto_doapp.viewModel.HomeScreenVM
 import com.okay.paceto_doapp.viewModel.PomodoroScreenVM
+import com.okay.paceto_doapp.viewModel.ProfileVM
 import com.okay.paceto_doapp.viewModel.TaskFormScreenVM
 import com.okay.paceto_doapp.viewModel.TaskListScreenVM
 
@@ -63,7 +64,8 @@ fun AppNavGraph(
 
                 HomeScreen(
                     viewModel = homeVM,
-                    onSeeAllClick = { navController.navigate(Screen.TaskListScreen.route) }
+                    onSeeAllClick = { navController.navigate(Screen.TaskListScreen.route) },
+                    onProfileIconClick = { navController.navigate(Screen.ProfileScreen.route) }
                 )
             }
             //Calendar Screen
@@ -131,7 +133,12 @@ fun AppNavGraph(
             }
             //Profile Screen
             composable(route = Screen.ProfileScreen.route) {
-                ProfileScreen()
+                val profileVM : ProfileVM = hiltViewModel()
+                //Profile Screen
+                ProfileDisplayScreen(
+                    viewModel = profileVM,
+                    onNavigateBack = { navController.popBackStack() }
+                )
             }
             //Settings Screen
             composable(route = Screen.SettingsScreen.route) {

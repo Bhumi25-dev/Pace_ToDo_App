@@ -1,6 +1,6 @@
 package com.okay.paceto_doapp.notification
 
-import com.example.paceto_doapp.R
+import com.okay.paceto_doapp.R
 import com.okay.paceto_doapp.data.local.Category
 
 fun getNotificationIcon(category: Category): Int {

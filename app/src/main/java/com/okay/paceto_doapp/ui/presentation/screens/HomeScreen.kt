@@ -5,6 +5,7 @@ import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -35,16 +36,14 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.okay.paceto_doapp.ui.presentation.components.TaskScreenCard
+import com.okay.paceto_doapp.ui.presentation.components.TopAppBarText
 import com.okay.paceto_doapp.ui.presentation.components.TotalTasksCard
 import com.okay.paceto_doapp.viewModel.HomeScreenVM
 import java.time.LocalDate
@@ -55,7 +54,8 @@ import java.util.Locale
 @Composable
 fun HomeScreen(
     viewModel: HomeScreenVM = hiltViewModel(),
-    onSeeAllClick: () -> Unit
+    onSeeAllClick: () -> Unit,
+    onProfileIconClick: () -> Unit,
 ) {
 
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -85,28 +85,7 @@ fun HomeScreen(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Start
                     ) {
-                        // Two-tone Welcome Text
-                        Text(
-                            text = buildAnnotatedString {
-                                withStyle(
-                                    style = SpanStyle(
-                                        color = MaterialTheme.colorScheme.onBackground,
-                                        fontWeight = FontWeight.ExtraBold
-                                    )
-                                ) {
-                                    append("Welcome, ")
-                                }
-                                withStyle(
-                                    style = SpanStyle(
-                                        color = MaterialTheme.colorScheme.primary,
-                                        fontWeight = FontWeight.ExtraBold
-                                    )
-                                ) {
-                                    append(state.userName)
-                                }
-                            },
-                            fontSize = 20.sp
-                        )
+                        TopAppBarText("Welcome, ",state.userName)
 
                         Spacer(modifier = Modifier.width(12.dp))
 
@@ -129,7 +108,7 @@ fun HomeScreen(
                 windowInsets = WindowInsets(0.dp),
                 actions = {
                     Surface(
-                        modifier = Modifier.padding(8.dp),
+                        modifier = Modifier.padding(8.dp).clickable { onProfileIconClick() },
                         shape = RoundedCornerShape(12.dp),
                         border = BorderStroke(1.dp,MaterialTheme.colorScheme.onErrorContainer),
                         color = MaterialTheme.colorScheme.surfaceVariant,

@@ -5,6 +5,7 @@ import android.content.Intent
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.okay.paceto_doapp.data.local.Task
+import com.okay.paceto_doapp.data.repo.ProfileDataStoreManager
 import com.okay.paceto_doapp.data.repo.TaskRepo
 import com.okay.paceto_doapp.notification.TaskCountdownService
 import com.okay.paceto_doapp.ui.presentation.events.HomeScreenState
@@ -12,7 +13,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
@@ -21,7 +22,8 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeScreenVM @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val repo: TaskRepo
+    private val repo: TaskRepo,
+    private val dataStoreManager: ProfileDataStoreManager
 ) : ViewModel() {
 
     private val allTasks: StateFlow<List<Task>> = repo.getAllTasks()
@@ -31,9 +33,11 @@ class HomeScreenVM @Inject constructor(
             initialValue = emptyList()
         )
 
-    val state: StateFlow<HomeScreenState> = allTasks
-        .map { tasks ->
+    val state: StateFlow<HomeScreenState> = combine(
+        dataStoreManager.profileDataFlow,allTasks)
+         { profile, tasks ->
             HomeScreenState(
+                userName = profile.name,
                 totalTasks = tasks.size,
                 completedTasks = tasks.count { it.isCompleted },
                 pendingTasksList = tasks.filter { !it.isCompleted }

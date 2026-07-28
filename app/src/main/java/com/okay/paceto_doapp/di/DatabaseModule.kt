@@ -4,6 +4,7 @@ import android.content.Context
 import com.okay.paceto_doapp.data.local.FocusDao
 import com.okay.paceto_doapp.data.local.TaskDao
 import com.okay.paceto_doapp.data.local.TaskDatabase
+import com.okay.paceto_doapp.data.repo.ProfileDataStoreManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -29,6 +30,14 @@ object DatabaseModule {
     @Provides
     fun provideFocusDao(database: TaskDatabase): FocusDao {
         return database.focusDao
+    }
+
+    @Provides
+    @Singleton
+    fun provideProfileDataStoreManager(
+        @ApplicationContext context: Context
+    ) : ProfileDataStoreManager {
+        return ProfileDataStoreManager(context)
     }
 
 }
