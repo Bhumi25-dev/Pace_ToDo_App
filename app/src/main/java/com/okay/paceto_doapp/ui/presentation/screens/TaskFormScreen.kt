@@ -1,5 +1,6 @@
 package com.okay.paceto_doapp.ui.presentation.screens
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -14,7 +15,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -25,9 +26,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,16 +41,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.okay.paceto_doapp.data.local.Category
 import com.okay.paceto_doapp.ui.presentation.components.CategorizationDropdown
 import com.okay.paceto_doapp.ui.presentation.components.DatePickerField
+import com.okay.paceto_doapp.ui.presentation.components.FormTextField
 import com.okay.paceto_doapp.ui.presentation.components.PickTaskDate
-import com.okay.paceto_doapp.ui.presentation.components.TaskTextField
 import com.okay.paceto_doapp.ui.presentation.events.TaskFormEvent
 import com.okay.paceto_doapp.ui.presentation.events.TaskFormState
-import com.okay.paceto_doapp.viewModel.TaskFormScreenVM
+import com.okay.paceto_doapp.ui.presentation.viewModel.TaskFormScreenVM
 import java.time.LocalDateTime
 
 // 1. The Stateful Wrapper (Wire this to your NavGraph)
@@ -58,10 +61,20 @@ fun TaskFormScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
+    val scrollState = rememberScrollState()
+
+    val snackbarHostState = remember{ SnackbarHostState() }
+    LaunchedEffect(Unit) {
+        viewModel.uiEvent.collect { message ->
+            snackbarHostState.showSnackbar(message)
+        }
+    }
+
     TaskFormContent(
         state = state,
         onEvent = viewModel::onEvent,
-        onNavigateBack
+        onNavigateBack,
+        scrollState
     )
 }
 
@@ -71,11 +84,11 @@ fun TaskFormScreen(
 fun TaskFormContent(
     state: TaskFormState,
     onEvent: (TaskFormEvent) -> Unit,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    scrollState: ScrollState
 ) {
     var showStartDatePicker by remember { mutableStateOf(false) }
     var showEndDatePicker by remember { mutableStateOf(false) }
-    val scrollState = rememberScrollState()
 
     Scaffold(
         containerColor = Color.Transparent,
@@ -99,7 +112,7 @@ fun TaskFormContent(
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
-                            imageVector = Icons.Default.ArrowBack,
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "back"
                         )
                     }
@@ -143,7 +156,7 @@ fun TaskFormContent(
             Spacer(modifier = Modifier.height(innerPadding.calculateTopPadding()))
 
             // Text Fields
-            TaskTextField(
+            FormTextField(
                 value = state.title,
                 onValueChange = { onEvent(TaskFormEvent.TitleChanged(it)) },
                 label = "Task Title",
@@ -152,7 +165,7 @@ fun TaskFormContent(
                 errorMessage = state.titleErrorMessage
             )
 
-            TaskTextField(
+            FormTextField(
                 value = state.description,
                 onValueChange = { onEvent(TaskFormEvent.DescriptionChanged(it)) },
                 label = "Description",
@@ -235,6 +248,7 @@ fun TaskFormScreenPreview() {
     TaskFormContent(
         state = dummyState,
         onEvent = {},
-        onNavigateBack = {}
+        onNavigateBack = {},
+        scrollState = rememberScrollState()
     )
 }

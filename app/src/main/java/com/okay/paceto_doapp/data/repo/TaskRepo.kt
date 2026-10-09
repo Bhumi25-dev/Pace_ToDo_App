@@ -5,8 +5,11 @@ import com.okay.paceto_doapp.data.local.Task
 import com.okay.paceto_doapp.data.local.TaskDao
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
+import java.time.LocalDateTime
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class TaskRepo @Inject constructor(
     private val localDao: TaskDao
 ) {
@@ -39,5 +42,9 @@ class TaskRepo @Inject constructor(
     //update isCompleted
     suspend fun updateTaskIsCompleted(taskId: String, isCompleted: Boolean, completeDate: LocalDate?){
         localDao.updateTaskIsCompleted(taskId, isCompleted,completeDate)
+    }
+
+    fun getTasksForTimeRange(startDate: LocalDateTime, endDate: LocalDateTime): Flow<List<Task>>{
+        return localDao.getTasksForTimeRange(startDate,endDate)
     }
 }

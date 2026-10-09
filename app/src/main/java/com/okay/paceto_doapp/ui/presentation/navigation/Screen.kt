@@ -6,6 +6,7 @@ sealed class Screen(val route: String) {
     object FocusList : Screen("focus_list")
     object TaskListScreen : Screen("task_list_screen")
     object ProfileScreen : Screen("profile")
+    object ProfileEditScreen : Screen("profile_edit")
     object SettingsScreen : Screen("settings")
     object TaskFormScreen : Screen("task_form") {
         fun passId(taskId: String? = null): String {

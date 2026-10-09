@@ -30,6 +30,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -59,6 +60,7 @@ fun BottomNavBar(navController: NavController) {
 
     val items = listOf(
         BottomNavItem(Screen.Home.route, "Home", Icons.Default.Home),
+        BottomNavItem(Screen.Calendar.route,"Calendar", Icons.Default.DateRange),
         BottomNavItem(Screen.FocusList.route, "Ritual", Icons.AutoMirrored.Filled.List)
     )
 

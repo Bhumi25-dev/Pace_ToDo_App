@@ -24,7 +24,7 @@ class ProfileDataStoreManager(context: Context)
 
     val profileDataFlow: Flow<Profile> = dataStore.data.map { preferences ->
         Profile(
-            name = preferences[NAME]?: "ALex",
+            name = preferences[NAME]?: "Okay",
             age = preferences[AGE]?: 21,
             profession = preferences[PROFESSION]?: "Android Developer",
             email = preferences[EMAIL]?: "okay@example.com"

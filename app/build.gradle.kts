@@ -13,7 +13,7 @@ android {
     // 1. Standardize compileSdk for Android 14
 
     defaultConfig {
-        applicationId = "com.example.paceto_doapp"
+        applicationId = "com.okay.paceto_doapp"
 
         // 2. Lower minSdk to allow installation
         minSdk = 26
@@ -58,10 +58,13 @@ dependencies {
     implementation(libs.litert.support.api)
     implementation(libs.androidx.compose.runtime)
 
+    //extended icons for material 3
+    implementation("androidx.compose.material:material-icons-extended")
+
     val hiltVersion = "2.59.2"
-    val navVersion = "2.9.8"
-    val lifecycleVersion = "2.10.0"
-    val hiltNavVersion = "1.3.0"
+    val navVersion = "2.10.0"
+    val lifecycleVersion = "2.11.0"
+    val hiltNavVersion = "1.4.0"
 
     // 1. Dagger Hilt (Core Dependency Injection)
     implementation("com.google.dagger:hilt-android:$hiltVersion")
@@ -90,14 +93,20 @@ dependencies {
 
     implementation("com.github.skydoves:cloudy:0.5.0")
 
-    // Optional: Room Test helpers
-    testImplementation("androidx.room:room-testing:$roomVersion")
-
     //Google Icons Library
     implementation("androidx.compose.material:material-icons-core")
 
     //datastore preferences
     implementation("androidx.datastore:datastore-preferences:1.0.0")
+
+    val kizitonwose_version = "2.6.0"
+    //calendar screen
+    implementation("com.kizitonwose.calendar:view:$kizitonwose_version")
+    // The compose calendar library for Android
+    implementation("com.kizitonwose.calendar:compose:$kizitonwose_version")
+
+    // Room Test helpers
+    testImplementation("androidx.room:room-testing:${roomVersion}")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

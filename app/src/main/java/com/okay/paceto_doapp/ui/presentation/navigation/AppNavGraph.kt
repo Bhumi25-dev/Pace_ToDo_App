@@ -15,18 +15,21 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.okay.paceto_doapp.ui.presentation.screens.CalendarScreen
 import com.okay.paceto_doapp.ui.presentation.screens.FocusListScreen
 import com.okay.paceto_doapp.ui.presentation.screens.HomeScreen
 import com.okay.paceto_doapp.ui.presentation.screens.PomodoroScreen
 import com.okay.paceto_doapp.ui.presentation.screens.ProfileDisplayScreen
+import com.okay.paceto_doapp.ui.presentation.screens.ProfileEditScreen
 import com.okay.paceto_doapp.ui.presentation.screens.TaskFormScreen
 import com.okay.paceto_doapp.ui.presentation.screens.TaskListScreen
-import com.okay.paceto_doapp.viewModel.FocusListVM
-import com.okay.paceto_doapp.viewModel.HomeScreenVM
-import com.okay.paceto_doapp.viewModel.PomodoroScreenVM
-import com.okay.paceto_doapp.viewModel.ProfileVM
-import com.okay.paceto_doapp.viewModel.TaskFormScreenVM
-import com.okay.paceto_doapp.viewModel.TaskListScreenVM
+import com.okay.paceto_doapp.ui.presentation.viewModel.CalendarVM
+import com.okay.paceto_doapp.ui.presentation.viewModel.FocusListVM
+import com.okay.paceto_doapp.ui.presentation.viewModel.HomeScreenVM
+import com.okay.paceto_doapp.ui.presentation.viewModel.PomodoroScreenVM
+import com.okay.paceto_doapp.ui.presentation.viewModel.ProfileVM
+import com.okay.paceto_doapp.ui.presentation.viewModel.TaskFormScreenVM
+import com.okay.paceto_doapp.ui.presentation.viewModel.TaskListScreenVM
 
 @Composable
 fun AppNavGraph(
@@ -70,7 +73,10 @@ fun AppNavGraph(
             }
             //Calendar Screen
             composable(route = Screen.Calendar.route) {
+                val calendarVM: CalendarVM = hiltViewModel()
+
                 // CalendarScreen()
+                CalendarScreen(viewModel = calendarVM)
             }
             //Task List Screen
             composable(route = Screen.TaskListScreen.route) {
@@ -136,6 +142,15 @@ fun AppNavGraph(
                 val profileVM : ProfileVM = hiltViewModel()
                 //Profile Screen
                 ProfileDisplayScreen(
+                    viewModel = profileVM,
+                    onNavigateBack = { navController.popBackStack() },
+                    onEditClick = { navController.navigate(Screen.ProfileEditScreen.route)}
+                )
+            }
+            composable(route = Screen.ProfileEditScreen.route) {
+                val profileVM : ProfileVM = hiltViewModel()
+                // ProfileEditScreen
+                ProfileEditScreen(
                     viewModel = profileVM,
                     onNavigateBack = { navController.popBackStack() }
                 )

@@ -1,5 +1,6 @@
 package com.okay.paceto_doapp.ui.theme
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
@@ -39,10 +40,20 @@ private val CyberKineticDarkColorScheme = darkColorScheme(
 
 @Composable
 fun PaceToDoAppTheme(
+    darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
-    MaterialTheme(
-        colorScheme = CyberKineticDarkColorScheme,
-        content = content
-    )
+    if(darkTheme)
+    {
+        MaterialTheme(
+            colorScheme = CyberKineticDarkColorScheme,
+            content = content
+        )
+    } else {
+        MaterialTheme(
+            colorScheme = CyberKineticDarkColorScheme,
+            content = content
+        )
+
+    }
 }

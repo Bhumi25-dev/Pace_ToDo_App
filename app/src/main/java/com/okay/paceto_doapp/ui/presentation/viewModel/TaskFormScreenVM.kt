@@ -1,19 +1,18 @@
-package com.okay.paceto_doapp.viewModel
+package com.okay.paceto_doapp.ui.presentation.viewModel
 
-import android.content.Context
-import android.widget.Toast
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.okay.paceto_doapp.data.local.Task
-import com.okay.paceto_doapp.ui.presentation.events.TaskFormEvent
 import com.okay.paceto_doapp.data.repo.TaskRepo
+import com.okay.paceto_doapp.ui.presentation.events.TaskFormEvent
 import com.okay.paceto_doapp.ui.presentation.events.TaskFormState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -24,9 +23,11 @@ import javax.inject.Inject
 @HiltViewModel
 class TaskFormScreenVM @Inject constructor(
     private val repo: TaskRepo,
-    @ApplicationContext private val context: Context,
     savedStateHandle: SavedStateHandle //to catch pre-existing task's id for edit
 ): ViewModel() {
+
+    private val _uiEvent = MutableSharedFlow<String>()
+    val uiEvent = _uiEvent.asSharedFlow()
 
     private val _state : MutableStateFlow<TaskFormState> = MutableStateFlow(TaskFormState())
     val state = _state.asStateFlow()
@@ -89,7 +90,7 @@ class TaskFormScreenVM @Inject constructor(
             }
 
             withContext(NonCancellable) {
-                val newTask: Task = Task(
+                val newTask = Task(
                     id = currentState.id ?: UUID.randomUUID().toString(),
                     title = currentState.title,
                     description = currentState.description,
@@ -102,7 +103,7 @@ class TaskFormScreenVM @Inject constructor(
                 repo.createTask(newTask)
 
                 withContext(Dispatchers.Main){
-                    Toast.makeText(context,"Task created successfully", Toast.LENGTH_SHORT).show()
+                    _uiEvent.emit("Task Saved Successfully")
                     onSuccess()
                 }
             }

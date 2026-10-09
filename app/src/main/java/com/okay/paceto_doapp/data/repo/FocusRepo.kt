@@ -7,7 +7,9 @@ import com.okay.paceto_doapp.data.local.FocusTaskWithRecords
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class FocusRepo @Inject constructor(
     private val localDao: FocusDao
 ){

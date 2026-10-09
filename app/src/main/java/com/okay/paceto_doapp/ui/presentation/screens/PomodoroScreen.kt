@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Button
@@ -45,7 +46,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.okay.paceto_doapp.ui.icons.equalizer
 import com.okay.paceto_doapp.ui.presentation.components.TimerUI
-import com.okay.paceto_doapp.viewModel.PomodoroScreenVM
+import com.okay.paceto_doapp.ui.presentation.viewModel.PomodoroScreenVM
 import com.okay.test.pause
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -185,9 +186,9 @@ fun BackgroundMusicCard(){
 
 @Composable
 fun PlayPauseButton(
-    icon1 : ImageVector = pause,
+    icon1 : ImageVector = Icons.Filled.Pause,
     icon2 : ImageVector = Icons.Filled.PlayArrow,
-    iconDescription : String = "Play or Pause" ,
+    iconDescription : String = "Play or Pause",
     text1 : String = "Pause",
     text2 : String = "Play",
     onClick: () -> Unit,

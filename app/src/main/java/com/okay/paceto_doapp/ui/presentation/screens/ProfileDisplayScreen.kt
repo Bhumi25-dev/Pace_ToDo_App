@@ -10,8 +10,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -30,13 +30,14 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.okay.paceto_doapp.ui.presentation.components.ProfileCard
 import com.okay.paceto_doapp.ui.presentation.components.ProfileDataTile
-import com.okay.paceto_doapp.viewModel.ProfileVM
+import com.okay.paceto_doapp.ui.presentation.viewModel.ProfileVM
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileDisplayScreen(
     viewModel: ProfileVM = hiltViewModel(),
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    onEditClick: () -> Unit
 ) {
 
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -75,10 +76,10 @@ fun ProfileDisplayScreen(
                         }
                     },
                     actions = {
-                        IconButton(onClick = {}) {
+                        IconButton(onClick = onEditClick ) {
                             Icon(
-                                imageVector = Icons.Default.Settings,
-                                contentDescription = "Search"
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = "Edit Profile",
                             )
                         }
                     },

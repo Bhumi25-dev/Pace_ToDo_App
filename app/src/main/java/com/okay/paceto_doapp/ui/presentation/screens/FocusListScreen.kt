@@ -53,7 +53,7 @@ import com.okay.paceto_doapp.ui.presentation.components.FocusFormBottomSheet
 import com.okay.paceto_doapp.ui.presentation.components.GenericFilterBar
 import com.okay.paceto_doapp.ui.presentation.components.TopAppBarText
 import com.okay.paceto_doapp.ui.presentation.events.FocusListEvent
-import com.okay.paceto_doapp.viewModel.FocusListVM
+import com.okay.paceto_doapp.ui.presentation.viewModel.FocusListVM
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -119,7 +119,7 @@ fun FocusListScreen(
                 )
                 GenericFilterBar(
                     items = durations,
-                    selectedItem = null,
+                    selectedItem = records.selectedDuration,
                     onItemSelect = {viewModel.onEvent(FocusListEvent.SetDurationFilter(it))},
                     labelProvider = { it?.name ?: "All" },
                     modifier = Modifier.padding(bottom = 8.dp)

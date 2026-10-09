@@ -47,7 +47,7 @@ import com.okay.paceto_doapp.ui.presentation.components.GenericFilterBar
 import com.okay.paceto_doapp.ui.presentation.components.TaskDetailsCard
 import com.okay.paceto_doapp.ui.presentation.components.TaskScreenCard
 import com.okay.paceto_doapp.ui.presentation.events.TaskEvent
-import com.okay.paceto_doapp.viewModel.TaskListScreenVM
+import com.okay.paceto_doapp.ui.presentation.viewModel.TaskListScreenVM
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -113,14 +113,6 @@ fun TaskListScreen(
                                 Icon(
                                     imageVector = Icons.Default.ArrowBack,
                                     contentDescription = "back"
-                                )
-                            }
-                        },
-                        actions = {
-                            IconButton(onClick = {}) {
-                                Icon(
-                                    imageVector = Icons.Default.Search,
-                                    contentDescription = "Search"
                                 )
                             }
                         },

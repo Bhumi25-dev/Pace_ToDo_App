@@ -6,6 +6,7 @@ import androidx.room.Query
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 @Dao
 interface TaskDao {
@@ -28,5 +29,7 @@ interface TaskDao {
     @Query("UPDATE task SET isCompleted = :isCompleted, taskCompleteDate = :completeDate WHERE id = :taskId")
     suspend fun updateTaskIsCompleted(taskId: String, isCompleted: Boolean, completeDate: LocalDate?)
 
+    @Query("SELECT * FROM task WHERE endDate BETWEEN :startDate AND :endDate ORDER BY endDate ASC")
+    fun getTasksForTimeRange(startDate: LocalDateTime, endDate: LocalDateTime): Flow<List<Task>>
 
 }

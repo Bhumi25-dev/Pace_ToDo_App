@@ -1,4 +1,4 @@
-package com.okay.paceto_doapp.viewModel
+package com.okay.paceto_doapp.ui.presentation.viewModel
 
 import android.content.Context
 import android.content.Intent

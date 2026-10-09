@@ -38,14 +38,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.okay.paceto_doapp.ui.presentation.components.DatePill
 import com.okay.paceto_doapp.ui.presentation.components.TaskScreenCard
 import com.okay.paceto_doapp.ui.presentation.components.TopAppBarText
 import com.okay.paceto_doapp.ui.presentation.components.TotalTasksCard
-import com.okay.paceto_doapp.viewModel.HomeScreenVM
+import com.okay.paceto_doapp.ui.presentation.viewModel.HomeScreenVM
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -89,20 +91,7 @@ fun HomeScreen(
 
                         Spacer(modifier = Modifier.width(12.dp))
 
-                        // Date Pill
-                        Surface(
-                            shape = RoundedCornerShape(50),
-                            color = MaterialTheme.colorScheme.secondaryContainer
-                        ) {
-                            Text(
-                                text = dateText,
-                                color = MaterialTheme.colorScheme.primary,
-                                fontWeight = FontWeight.Bold,
-                                fontFamily = FontFamily.Monospace,
-                                fontSize = 12.sp,
-                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
-                            )
-                        }
+                        DatePill(dateText = dateText)
                     }
                 },
                 windowInsets = WindowInsets(0.dp),
@@ -162,15 +151,40 @@ fun HomeScreen(
                     )
                 }
             }
-            LazyColumn(
-                modifier = Modifier,
-                contentPadding = PaddingValues(bottom = 96.dp)
-            ) {
-                items(state.pendingTasksList){ task ->
-                    TaskScreenCard(
-                        task = task,
-                        onCardClick = {}
+            if(state.pendingTasksList.isEmpty()){
+                Column(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = "You're all caught up!",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(horizontal = 32.dp)
                     )
+                    Text(
+                        text = "Add a new task to keep the momentum going.",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant, // Gives it a nice, subtle grey/muted look
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(horizontal = 32.dp) // Keeps the text from hitting the edges of the screen
+                    )
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier,
+                    contentPadding = PaddingValues(bottom = 96.dp)
+                ) {
+                    items(state.pendingTasksList) { task ->
+                        TaskScreenCard(
+                            task = task,
+                            onCardClick = {}
+                        )
+                    }
                 }
             }
         }

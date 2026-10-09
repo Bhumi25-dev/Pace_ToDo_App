@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,7 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun TaskTextField(
+fun FormTextField(
     value: String,
     onValueChange: (String) -> Unit,
     label: String,
@@ -32,7 +33,8 @@ fun TaskTextField(
     minLines: Int = 1,
     isError: Boolean = false,
     errorMessage: String? = null,
-    maxLength: Int? = null
+    maxLength: Int? = null,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
 ) {
     Column(modifier = modifier.fillMaxWidth().padding(8.dp)) {
         // 1. The Detached Label (Using Material Typography and Colors)
@@ -54,9 +56,9 @@ fun TaskTextField(
             minLines = minLines,
             textStyle = TextStyle(
                 fontSize = 16.sp,
-                // Automatically adapts to Light/Dark mode
                 color = MaterialTheme.colorScheme.onSurface
             ),
+            keyboardOptions = keyboardOptions,
             modifier = Modifier
                 .fillMaxWidth()
                 .then(
