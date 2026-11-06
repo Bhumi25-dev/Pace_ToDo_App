@@ -47,7 +47,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.okay.paceto_doapp.ui.icons.equalizer
 import com.okay.paceto_doapp.ui.presentation.components.TimerUI
 import com.okay.paceto_doapp.ui.presentation.viewModel.PomodoroScreenVM
-import com.okay.test.pause
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
