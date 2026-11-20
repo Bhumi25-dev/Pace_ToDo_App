@@ -120,8 +120,8 @@ fun ProfileEditScreen(
             )
 
             FormTextField(
-                value = state.age.toString(),
-                onValueChange = {input->
+                value = if (state.age == 0) "" else state.age.toString(),
+                onValueChange = { input ->
                     if (input.isBlank()) {
                         viewModel.onEvent(ProfileEvent.AgeChanged(0))
                     } else {
@@ -132,7 +132,7 @@ fun ProfileEditScreen(
                     }
                 },
                 label = "Age",
-                placeholder = "Eg.: 18,21,etc.",
+                placeholder = "Eg.: 18, 21, etc.",
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
             )
 
