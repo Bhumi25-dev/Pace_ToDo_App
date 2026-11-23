@@ -15,7 +15,7 @@ sealed class Screen(val route: String) {
     }
     object PomodoroScreen : Screen("pomodoro") {
         fun passId(focusName: String): String {
-            return "pomodoro/$focusName"
+            return "pomodoro/${android.net.Uri.encode(focusName)}"
         }
     }
 }

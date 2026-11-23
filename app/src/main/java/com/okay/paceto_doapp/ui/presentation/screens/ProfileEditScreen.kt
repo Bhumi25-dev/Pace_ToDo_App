@@ -36,7 +36,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.okay.paceto_doapp.ui.presentation.components.FormTextField
 import com.okay.paceto_doapp.ui.presentation.events.ProfileEvent
 import com.okay.paceto_doapp.ui.presentation.viewModel.ProfileVM
-import java.sql.Types.NULL
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -121,13 +120,19 @@ fun ProfileEditScreen(
             )
 
             FormTextField(
-                value = state.age.toString(),
-                onValueChange = {input->
-                    val age = input.toIntOrNull()
-                    if(age!=NULL) viewModel.onEvent(ProfileEvent.AgeChanged(age))
+                value = if (state.age == 0) "" else state.age.toString(),
+                onValueChange = { input ->
+                    if (input.isBlank()) {
+                        viewModel.onEvent(ProfileEvent.AgeChanged(0))
+                    } else {
+                        val parsed = input.toIntOrNull()
+                        if (parsed != null && parsed in 0..150) {
+                            viewModel.onEvent(ProfileEvent.AgeChanged(parsed))
+                        }
+                    }
                 },
                 label = "Age",
-                placeholder = "Eg.: 18,21,etc.",
+                placeholder = "Eg.: 18, 21, etc.",
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
             )
 

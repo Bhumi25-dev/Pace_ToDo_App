@@ -23,7 +23,7 @@ interface FocusDao {
     fun getFocusTasks(): Flow<List<FocusTask>>
 
     @Query("SELECT * FROM FocusTask WHERE focusName = :focusName")
-    suspend fun getFocusTaskByName(focusName: String): FocusTask
+    suspend fun getFocusTaskByName(focusName: String): FocusTask?
 
     // 1. Checks if the session already exists
     @Query("SELECT * FROM FocusRecords WHERE date = :date AND focusName = :focusName")

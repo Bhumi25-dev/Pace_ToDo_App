@@ -24,7 +24,7 @@ class FocusRepo @Inject constructor(
         localDao.deleteFocusTask(focusName = focusName)
     }
 
-    suspend fun getFocusTaskByName(focusName: String) : FocusTask
+    suspend fun getFocusTaskByName(focusName: String) : FocusTask?
     {
         return localDao.getFocusTaskByName(focusName = focusName)
     }

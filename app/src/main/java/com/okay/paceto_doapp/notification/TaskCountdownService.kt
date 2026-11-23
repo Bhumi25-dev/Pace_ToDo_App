@@ -29,17 +29,31 @@ class TaskCountdownService : Service() {
     private val activeJobs = mutableMapOf<String, Job>()
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val taskId = intent?.getStringExtra(EXTRA_TASK_ID) ?: return START_NOT_STICKY
+        val taskId = intent?.getStringExtra(EXTRA_TASK_ID)
+        val notifId = taskId?.hashCode() ?: DEFAULT_NOTIFICATION_ID
+        startForeground(notifId, getInitialForegroundNotification())
+
+        if (taskId.isNullOrBlank()) {
+            stopSelfSafely()
+            return START_NOT_STICKY
+        }
 
         when (intent.action) {
             ACTION_START -> {
                 serviceScope.launch {
-                    val task = taskRepository.getTaskByTaskId(taskId) ?: return@launch
+                    val task = taskRepository.getTaskByTaskId(taskId)
+                    if (task == null || task.isCompleted) {
+                        stopCountdownForTask(taskId)
+                        return@launch
+                    }
                     startCountdownForTask(task)
                 }
             }
             ACTION_STOP -> {
                 stopCountdownForTask(taskId)
+            }
+            else -> {
+                stopSelfSafely()
             }
         }
 
@@ -71,20 +85,18 @@ class TaskCountdownService : Service() {
 
         activeJobs[task.id] = job
 
-        // Service must post a foreground notification immediately
-        // We use the task's own notification as the foreground one
         val remainingNow = ChronoUnit.SECONDS.between(LocalDateTime.now(), task.endDate)
             .coerceAtLeast(0L)
         notificationService.showTaskCountdownNotification(task, remainingNow)
-        startForeground(task.id.hashCode(), getInitialForegroundNotification(task, remainingNow))
     }
 
-    private fun getInitialForegroundNotification(task: Task, remainingSeconds: Long) =
+    private fun getInitialForegroundNotification() =
         androidx.core.app.NotificationCompat.Builder(this, PendingNotificationService.PENDING_CHANNEL_ID)
             .setSmallIcon(android.R.drawable.ic_dialog_info)
-            .setContentTitle(task.title)
-            .setContentText("Countdown started")
+            .setContentTitle("Task Countdown")
+            .setContentText("Syncing deadline timer...")
             .setOngoing(true)
+            .setSilent(true)
             .build()
 
     private fun stopCountdownForTask(taskId: String) {
@@ -92,10 +104,21 @@ class TaskCountdownService : Service() {
         activeJobs.remove(taskId)
         notificationService.cancelNotification(taskId)
 
-        // Stop service entirely if no more active countdowns
+        stopSelfSafely()
+    }
+
+    private fun stopSelfSafely() {
         if (activeJobs.isEmpty()) {
+            stopForeground(STOP_FOREGROUND_REMOVE)
             stopSelf()
         }
+    }
+
+    override fun onTimeout(startId: Int) {
+        super.onTimeout(startId)
+        serviceScope.cancel()
+        stopForeground(STOP_FOREGROUND_REMOVE)
+        stopSelf()
     }
 
     override fun onDestroy() {
@@ -107,7 +130,8 @@ class TaskCountdownService : Service() {
 
     companion object {
         const val EXTRA_TASK_ID = "extra_task_id"
-        const val ACTION_START = "com.example.paceto_doapp.START_COUNTDOWN"
-        const val ACTION_STOP = "com.example.paceto_doapp.STOP_COUNTDOWN"
+        const val ACTION_START = "com.okay.paceto_doapp.START_COUNTDOWN"
+        const val ACTION_STOP = "com.okay.paceto_doapp.STOP_COUNTDOWN"
+        private const val DEFAULT_NOTIFICATION_ID = 99901
     }
 }
