@@ -20,7 +20,7 @@ class PomodoroScreenVM @Inject constructor(
     savedStateHandle: SavedStateHandle
 ): ViewModel() {
 
-    private val focusName: String = checkNotNull(savedStateHandle["focusName"])
+    private val focusName: String = android.net.Uri.decode(checkNotNull(savedStateHandle["focusName"]))
     private val _currentTask = MutableStateFlow<FocusTask?>(null)
     val currentTask = _currentTask.asStateFlow()
 
