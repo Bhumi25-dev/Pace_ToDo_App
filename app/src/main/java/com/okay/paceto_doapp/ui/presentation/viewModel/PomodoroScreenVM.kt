@@ -34,8 +34,12 @@ class PomodoroScreenVM @Inject constructor(
     private fun loadTaskDetails()
     {
         viewModelScope.launch(Dispatchers.IO) {
-            val task = focusRepo.getFocusTaskByName(focusName)
-            _currentTask.value = task
+            try {
+                val task = focusRepo.getFocusTaskByName(focusName)
+                _currentTask.value = task
+            } catch (e: Exception) {
+                _currentTask.value = null
+            }
         }
     }
 
