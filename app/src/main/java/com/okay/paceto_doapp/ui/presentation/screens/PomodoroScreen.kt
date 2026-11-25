@@ -19,7 +19,6 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -44,7 +43,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.okay.paceto_doapp.ui.icons.equalizer
 import com.okay.paceto_doapp.ui.presentation.components.TimerUI
 import com.okay.paceto_doapp.ui.presentation.viewModel.PomodoroScreenVM
 
@@ -148,36 +146,6 @@ fun PomodoroScreen(
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
-            }
-        }
-    }
-}
-
-@Composable
-fun BackgroundMusicCard(){
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth(),
-            verticalArrangement = Arrangement.Center
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Icon(
-                    imageVector = equalizer,
-                    contentDescription = "Background Music",
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "Background Music",
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.SemiBold
-                )
             }
         }
     }
