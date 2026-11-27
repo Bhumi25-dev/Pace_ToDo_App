@@ -16,6 +16,7 @@ local.properties
 
 # Antigravity local memory
 AGENTS.md
-.antigravity_memory.md
-.antigravity/
-.antigravity
+antigravity_memory.md
+antigravity.md
+app/release/
+*.apk
