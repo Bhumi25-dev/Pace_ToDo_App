@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import java.time.LocalDateTime
 import javax.inject.Inject
 
@@ -75,5 +76,26 @@ class HomeScreenVM @Inject constructor(
             putExtra(TaskCountdownService.EXTRA_TASK_ID, task.id)
         }
         context.startForegroundService(intent)
+    }
+
+    fun toggleTaskCompleted(taskId: String, isCompleted: Boolean) {
+        viewModelScope.launch {
+            val completionDate = if (isCompleted) LocalDate.now() else null
+            repo.updateTaskIsCompleted(
+                taskId = taskId,
+                isCompleted = isCompleted,
+                completeDate = completionDate
+            )
+            if (isCompleted) {
+                TaskCountdownService.requestStop(taskId)
+            }
+        }
+    }
+
+    fun deleteTask(task: Task) {
+        viewModelScope.launch {
+            repo.deleteTask(task)
+            TaskCountdownService.requestStop(task.id)
+        }
     }
 }

@@ -2,7 +2,9 @@ package com.okay.paceto_doapp.ui.presentation.viewModel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.okay.paceto_doapp.data.local.Task
 import com.okay.paceto_doapp.data.repo.TaskRepo
+import com.okay.paceto_doapp.notification.TaskCountdownService
 import com.okay.paceto_doapp.ui.presentation.events.CalendarUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -69,5 +71,26 @@ class CalendarVM @Inject constructor(
     fun onMonthScrolled(date: LocalDateTime)
     {
         loadTasksForMonth(date)
+    }
+
+    fun toggleTaskCompleted(taskId: String, isCompleted: Boolean) {
+        viewModelScope.launch {
+            val completionDate = if (isCompleted) LocalDate.now() else null
+            repo.updateTaskIsCompleted(
+                taskId = taskId,
+                isCompleted = isCompleted,
+                completeDate = completionDate
+            )
+            if (isCompleted) {
+                TaskCountdownService.requestStop(taskId)
+            }
+        }
+    }
+
+    fun deleteTask(task: Task) {
+        viewModelScope.launch {
+            repo.deleteTask(task)
+            TaskCountdownService.requestStop(task.id)
+        }
     }
 }
