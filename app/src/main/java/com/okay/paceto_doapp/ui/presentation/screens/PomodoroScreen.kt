@@ -66,10 +66,28 @@ fun PomodoroScreen(
     }
 
     val task = focusTask
-    if (task == null) {
+    if (uiState.isLoading) {
         // Handle loading phase safely while Room fetches from storage disk layers
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             CircularProgressIndicator()
+        }
+    } else if (task == null) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = uiState.errorMessage ?: "Ritual not found",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(onClick = onNavigateBack) {
+                Text(text = "Go Back")
+            }
         }
     } else {
         Scaffold(

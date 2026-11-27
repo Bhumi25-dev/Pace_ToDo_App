@@ -37,8 +37,20 @@ class PomodoroScreenVM @Inject constructor(
             try {
                 val task = focusRepo.getFocusTaskByName(focusName)
                 _currentTask.value = task
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        errorMessage = if (task == null) "Ritual not found" else null
+                    )
+                }
             } catch (e: Exception) {
                 _currentTask.value = null
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        errorMessage = "Unable to load ritual"
+                    )
+                }
             }
         }
     }
@@ -63,6 +75,6 @@ class PomodoroScreenVM @Inject constructor(
     }
 
     fun resetSaveState() {
-        _uiState.update { PomodoroUiState() }
+        _uiState.update { it.copy(isSaving = false, isSavedSuccess = false) }
     }
 }
