@@ -7,13 +7,17 @@ import com.okay.paceto_doapp.data.local.Task
 import com.okay.paceto_doapp.data.repo.TaskRepo
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
+import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -25,8 +29,17 @@ class TaskCountdownService : Service() {
     @Inject
     lateinit var notificationService: PendingNotificationService
 
-    private val serviceScope = CoroutineScope(Dispatchers.IO)
-    private val activeJobs = mutableMapOf<String, Job>()
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val activeJobs = ConcurrentHashMap<String, Job>()
+
+    override fun onCreate() {
+        super.onCreate()
+        serviceScope.launch {
+            stopRequests.collect { taskId ->
+                stopCountdownForTask(taskId)
+            }
+        }
+    }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val taskId = intent?.getStringExtra(EXTRA_TASK_ID)
@@ -61,29 +74,32 @@ class TaskCountdownService : Service() {
     }
 
     private fun startCountdownForTask(task: Task) {
-        // Cancel any existing job for this task first
-        activeJobs[task.id]?.cancel()
+        synchronized(activeJobs) {
+            // Cancel any existing job for this task first
+            activeJobs[task.id]?.cancel()
 
-        val job = serviceScope.launch {
-            while (true) {
-                val remainingSeconds = ChronoUnit.SECONDS.between(
-                    LocalDateTime.now(),
-                    task.endDate
-                )
+            val job = serviceScope.launch(start = CoroutineStart.LAZY) {
+                while (true) {
+                    val remainingSeconds = ChronoUnit.SECONDS.between(
+                        LocalDateTime.now(),
+                        task.endDate
+                    )
 
-                if (remainingSeconds <= 0) {
-                    // Time's up — cancel notification and stop
-                    notificationService.cancelNotification(task.id)
-                    stopCountdownForTask(task.id)
-                    break
+                    if (remainingSeconds <= 0) {
+                        // Time's up — cancel notification and stop
+                        notificationService.cancelNotification(task.id)
+                        stopCountdownForTask(task.id)
+                        break
+                    }
+
+                    notificationService.showTaskCountdownNotification(task, remainingSeconds)
+                    delay(1000L)
                 }
-
-                notificationService.showTaskCountdownNotification(task, remainingSeconds)
-                delay(1000L)
             }
-        }
 
-        activeJobs[task.id] = job
+            activeJobs[task.id] = job
+            job.start()
+        }
 
         val remainingNow = ChronoUnit.SECONDS.between(LocalDateTime.now(), task.endDate)
             .coerceAtLeast(0L)
@@ -100,11 +116,11 @@ class TaskCountdownService : Service() {
             .build()
 
     private fun stopCountdownForTask(taskId: String) {
-        activeJobs[taskId]?.cancel()
-        activeJobs.remove(taskId)
-        notificationService.cancelNotification(taskId)
-
-        stopSelfSafely()
+        synchronized(activeJobs) {
+            activeJobs.remove(taskId)?.cancel()
+            notificationService.cancelNotification(taskId)
+            stopSelfSafely()
+        }
     }
 
     private fun stopSelfSafely() {
@@ -133,5 +149,11 @@ class TaskCountdownService : Service() {
         const val ACTION_START = "com.okay.paceto_doapp.START_COUNTDOWN"
         const val ACTION_STOP = "com.okay.paceto_doapp.STOP_COUNTDOWN"
         private const val DEFAULT_NOTIFICATION_ID = 99901
+
+        private val stopRequests = MutableSharedFlow<String>(extraBufferCapacity = 64)
+
+        fun requestStop(taskId: String) {
+            stopRequests.tryEmit(taskId)
+        }
     }
 }
