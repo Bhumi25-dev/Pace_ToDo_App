@@ -68,7 +68,10 @@ fun AppNavGraph(
                 HomeScreen(
                     viewModel = homeVM,
                     onSeeAllClick = { navController.navigate(Screen.TaskListScreen.route) },
-                    onProfileIconClick = { navController.navigate(Screen.ProfileScreen.route) }
+                    onProfileIconClick = { navController.navigate(Screen.ProfileScreen.route) },
+                    onEditClick = { taskId ->
+                        navController.navigate(Screen.TaskFormScreen.passId(taskId))
+                    }
                 )
             }
             //Calendar Screen
@@ -76,7 +79,12 @@ fun AppNavGraph(
                 val calendarVM: CalendarVM = hiltViewModel()
 
                 // CalendarScreen()
-                CalendarScreen(viewModel = calendarVM)
+                CalendarScreen(
+                    viewModel = calendarVM,
+                    onEditClick = { taskId ->
+                        navController.navigate(Screen.TaskFormScreen.passId(taskId))
+                    }
+                )
             }
             //Task List Screen
             composable(route = Screen.TaskListScreen.route) {

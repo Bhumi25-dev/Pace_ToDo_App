@@ -24,7 +24,9 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,6 +38,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kizitonwose.calendar.compose.rememberCalendarState
 import com.okay.paceto_doapp.ui.presentation.components.DatePill
 import com.okay.paceto_doapp.ui.presentation.components.MonthCalendar
+import com.okay.paceto_doapp.ui.presentation.components.TaskDetailsDialog
 import com.okay.paceto_doapp.ui.presentation.components.TaskScreenCard
 import com.okay.paceto_doapp.ui.presentation.components.TopAppBarText
 import com.okay.paceto_doapp.ui.presentation.viewModel.CalendarVM
@@ -46,9 +49,12 @@ import java.time.YearMonth
 @Composable
 fun CalendarScreen(
     viewModel: CalendarVM = hiltViewModel(),
+    onEditClick: (String) -> Unit,
 ) {
 
     val uiState by viewModel.state.collectAsStateWithLifecycle()
+    var selectedTaskId by remember { mutableStateOf<String?>(null) }
+    val selectedTask = uiState.selectedDateTasks.find { it.id == selectedTaskId }
 
     val currentMonth = remember { YearMonth.now() }
     val startMonth = remember { currentMonth.minusMonths(24) }
@@ -124,15 +130,25 @@ fun CalendarScreen(
                     bottom = innerPadding.calculateBottomPadding() + 96.dp
                 )
             ) {
-                items(uiState.selectedDateTasks){ task ->
+                items(uiState.selectedDateTasks, key = { it.id }){ task ->
                     TaskScreenCard(
                         task = task,
-                        onCardClick = {}
+                        onCardClick = { selectedTaskId = task.id }
                     )
                 }
             }
         }
 
+    }
+
+    selectedTask?.let { task ->
+        TaskDetailsDialog(
+            task = task,
+            onDismiss = { selectedTaskId = null },
+            onToggleCompleted = { viewModel.toggleTaskCompleted(it.id, !it.isCompleted) },
+            onEditClick = onEditClick,
+            onDeleteClick = { viewModel.deleteTask(it) }
+        )
     }
 
 }
