@@ -38,13 +38,11 @@ import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.okay.paceto_doapp.data.local.Category
 import com.okay.paceto_doapp.ui.presentation.components.GenericFilterBar
-import com.okay.paceto_doapp.ui.presentation.components.TaskDetailsCard
+import com.okay.paceto_doapp.ui.presentation.components.TaskDetailsDialog
 import com.okay.paceto_doapp.ui.presentation.components.TaskScreenCard
 import com.okay.paceto_doapp.ui.presentation.events.TaskEvent
 import com.okay.paceto_doapp.ui.presentation.viewModel.TaskListScreenVM
@@ -165,26 +163,15 @@ fun TaskListScreen(
         }
 
         selectedTask?.let { task ->
-            Dialog(
-                onDismissRequest = { selectedTaskById = null },
-                properties = DialogProperties(usePlatformDefaultWidth = false)
-                ) {
-                TaskDetailsCard(
-                    task = task,
-                    onNavigateBack = { selectedTaskById = null },
-                    onMarkedAsComplete = {
-                        viewModel.onEvent(TaskEvent.UpdateTaskIsCompleted(task.id, !task.isCompleted))
-                    },
-                    onEditClick = {
-                        selectedTaskById = null
-                        onEditClick(task.id)
-                    },
-                    onDeleteClick = {
-                        viewModel.onEvent(TaskEvent.DeleteTask(task))
-                        selectedTaskById = null
-                    },
-                )
-            }
+            TaskDetailsDialog(
+                task = task,
+                onDismiss = { selectedTaskById = null },
+                onToggleCompleted = {
+                    viewModel.onEvent(TaskEvent.UpdateTaskIsCompleted(it.id, !it.isCompleted))
+                },
+                onEditClick = onEditClick,
+                onDeleteClick = { viewModel.onEvent(TaskEvent.DeleteTask(it)) }
+            )
         }
 
     }
