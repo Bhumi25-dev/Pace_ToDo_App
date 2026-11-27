@@ -40,6 +40,8 @@ fun FocusFormBottomSheet(
     var durationInt by remember(focusTask) {mutableIntStateOf(focusTask?.duration?: 0)}
 
     var expanded by remember { mutableStateOf(false) }
+    val isEditMode = focusTask != null
+    val trimmedName = focusName.trim()
 
     ModalBottomSheet(
         onDismissRequest = discardRitual,
@@ -54,7 +56,7 @@ fun FocusFormBottomSheet(
         ) {
 
             Text(
-                text = if (focusTask == null) "Create New Ritual" else "Edit Ritual",
+                text = if (!isEditMode) "Create New Ritual" else "Edit Ritual",
                 style = MaterialTheme.typography.titleLarge
             )
 
@@ -65,15 +67,22 @@ fun FocusFormBottomSheet(
             )
             OutlinedTextField(
                 value = focusName,
-                onValueChange = { focusName = it },
+                onValueChange = { if (!isEditMode) focusName = it },
+                enabled = !isEditMode,
+                readOnly = isEditMode,
                 label = { Text("Focus Name (e.g., Workout, DSA)") },
+                supportingText = if (isEditMode) {
+                    { Text("Ritual name cannot be changed after creation") }
+                } else {
+                    null
+                },
                 modifier = Modifier.fillMaxWidth()
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Ritual Name"
+                text = "Duration"
             )
             ExposedDropdownMenuBox(
                 expanded = expanded,
@@ -112,10 +121,12 @@ fun FocusFormBottomSheet(
 
             Button(
                 onClick = {
-                    if(focusName.isNotBlank() && durationInt>0) onSaveRitual(FocusTask(focusName,durationName,durationInt))
+                    if (trimmedName.isNotEmpty() && durationInt > 0) {
+                        onSaveRitual(FocusTask(trimmedName, durationName, durationInt))
+                    }
                 },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = focusName.isNotBlank() && durationInt>0
+                enabled = trimmedName.isNotEmpty() && durationInt > 0
             ) {
                 Text(text = "Save Ritual")
             }
