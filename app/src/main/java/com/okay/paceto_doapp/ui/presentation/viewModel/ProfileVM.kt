@@ -8,7 +8,6 @@ import com.okay.paceto_doapp.ui.presentation.events.ProfileState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -21,21 +20,26 @@ class ProfileVM @Inject constructor(
     private val _uiState: MutableStateFlow<ProfileState> = MutableStateFlow(ProfileState())
     val uiState = _uiState.asStateFlow()
 
+    private var hasUserEdited = false
+
     init {
-        loadExistingProfileData()
+        observeProfileData()
     }
 
-    private fun loadExistingProfileData()
+    private fun observeProfileData()
     {
         viewModelScope.launch {
-            val profile = dataStoreManager.profileDataFlow.first()
-            _uiState.update {
-                it.copy(
-                    name = profile.name,
-                    age = profile.age,
-                    profession = profile.profession,
-                    email = profile.email
-                )
+            dataStoreManager.profileDataFlow.collect { profile ->
+                if (!hasUserEdited) {
+                    _uiState.update {
+                        it.copy(
+                            name = profile.name,
+                            age = profile.age,
+                            profession = profile.profession,
+                            email = profile.email
+                        )
+                    }
+                }
             }
         }
     }
@@ -44,10 +48,22 @@ class ProfileVM @Inject constructor(
     {
         when(event)
         {
-            is ProfileEvent.NameChanged -> _uiState.update { it.copy(name = event.name) }
-            is ProfileEvent.AgeChanged -> _uiState.update { it.copy(age = event.age) }
-            is ProfileEvent.ProfessionChanged -> _uiState.update { it.copy(profession = event.profession) }
-            is ProfileEvent.EmailChanged -> _uiState.update { it.copy(email = event.email) }
+            is ProfileEvent.NameChanged -> {
+                hasUserEdited = true
+                _uiState.update { it.copy(name = event.name) }
+            }
+            is ProfileEvent.AgeChanged -> {
+                hasUserEdited = true
+                _uiState.update { it.copy(age = event.age) }
+            }
+            is ProfileEvent.ProfessionChanged -> {
+                hasUserEdited = true
+                _uiState.update { it.copy(profession = event.profession) }
+            }
+            is ProfileEvent.EmailChanged -> {
+                hasUserEdited = true
+                _uiState.update { it.copy(email = event.email) }
+            }
             is ProfileEvent.SaveProfile -> saveChanges(event.onSuccessfulSave)
         }
     }
