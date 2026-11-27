@@ -29,6 +29,9 @@ class TaskFormScreenVM @Inject constructor(
     private val _uiEvent = MutableSharedFlow<String>()
     val uiEvent = _uiEvent.asSharedFlow()
 
+    private val _navigateBack = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    val navigateBack = _navigateBack.asSharedFlow()
+
     private val _state : MutableStateFlow<TaskFormState> = MutableStateFlow(TaskFormState())
     val state = _state.asStateFlow()
 
@@ -53,7 +56,10 @@ class TaskFormScreenVM @Inject constructor(
                         startDate = existingTask.startDate,
                         endDate = existingTask.endDate,
                         category = existingTask.category,
-                        priority = existingTask.priority
+                        priority = existingTask.priority,
+                        tags = existingTask.tags,
+                        isCompleted = existingTask.isCompleted,
+                        taskCompleteDate = existingTask.taskCompleteDate
                     )
                 }
             }
@@ -70,7 +76,7 @@ class TaskFormScreenVM @Inject constructor(
             is TaskFormEvent.PrioritySelected -> _state.update { it.copy(priority = event.priority) }
             is TaskFormEvent.SaveTask -> saveTask(event.onSuccessfulSave)
             is TaskFormEvent.CancelTask -> {
-                //TODO: Navigate back to the task list screen
+                _navigateBack.tryEmit(Unit)
             }
         }
     }
@@ -78,6 +84,7 @@ class TaskFormScreenVM @Inject constructor(
     private fun saveTask(onSuccess: () -> Unit){
         viewModelScope.launch {
             val currentState = state.value
+            if (currentState.isSaving) return@launch
 
             if(currentState.title.isBlank()){
                 _state.update {
@@ -89,23 +96,36 @@ class TaskFormScreenVM @Inject constructor(
                 return@launch
             }
 
-            withContext(NonCancellable) {
-                val newTask = Task(
-                    id = currentState.id ?: UUID.randomUUID().toString(),
-                    title = currentState.title,
-                    description = currentState.description,
-                    startDate = currentState.startDate,
-                    endDate = currentState.endDate,
-                    category = currentState.category,
-                    priority = currentState.priority,
-                )
+            if (!currentState.endDate.isAfter(currentState.startDate)) {
+                _uiEvent.emit("End date must be after start date")
+                return@launch
+            }
 
-                repo.createTask(newTask)
+            _state.update { it.copy(isSaving = true) }
+            try {
+                withContext(NonCancellable) {
+                    val newTask = Task(
+                        id = currentState.id ?: UUID.randomUUID().toString(),
+                        title = currentState.title.trim(),
+                        description = currentState.description,
+                        startDate = currentState.startDate,
+                        endDate = currentState.endDate,
+                        taskCompleteDate = currentState.taskCompleteDate,
+                        category = currentState.category,
+                        tags = currentState.tags,
+                        priority = currentState.priority,
+                        isCompleted = currentState.isCompleted
+                    )
 
-                withContext(Dispatchers.Main){
-                    _uiEvent.emit("Task Saved Successfully")
-                    onSuccess()
+                    repo.createTask(newTask)
+
+                    withContext(Dispatchers.Main){
+                        _uiEvent.emit("Task Saved Successfully")
+                        onSuccess()
+                    }
                 }
+            } finally {
+                _state.update { it.copy(isSaving = false) }
             }
         }
     }

@@ -2,6 +2,7 @@ package com.okay.paceto_doapp.ui.presentation.events
 
 import com.okay.paceto_doapp.data.local.Category
 import com.okay.paceto_doapp.data.local.Priority
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 data class TaskFormState(
@@ -10,10 +11,12 @@ data class TaskFormState(
     val title: String = "",
     val description: String = "",
     val startDate: LocalDateTime = LocalDateTime.now(),
-    val endDate: LocalDateTime = LocalDateTime.now(),
+    val endDate: LocalDateTime = startDate.plusHours(1),
     val category: Category = Category.FOCUS,
     val priority: Priority = Priority.LOW,
     val tags: List<String> = emptyList(),
+    val isCompleted: Boolean = false,
+    val taskCompleteDate: LocalDate? = null,
     val titleError: Boolean = false,
     val titleErrorMessage: String = "",
     val isSaving: Boolean = false
