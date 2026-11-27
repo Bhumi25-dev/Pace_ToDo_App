@@ -56,8 +56,8 @@ class NotificationActionReceiver : BroadcastReceiver() {
     }
 
     companion object {
-        const val ACTION_MARK_COMPLETE = "com.example.paceto_doapp.MARK_COMPLETE"
-        const val ACTION_DISMISS = "com.example.paceto_doapp.DISMISS"
+        const val ACTION_MARK_COMPLETE = "com.okay.paceto_doapp.MARK_COMPLETE"
+        const val ACTION_DISMISS = "com.okay.paceto_doapp.DISMISS"
         const val EXTRA_TASK_ID = "extra_task_id"
     }
 }
