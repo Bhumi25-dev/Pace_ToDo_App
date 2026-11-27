@@ -22,10 +22,13 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -41,9 +44,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.okay.paceto_doapp.data.local.Category
+import com.okay.paceto_doapp.data.local.Priority
 import com.okay.paceto_doapp.ui.presentation.components.CategorizationDropdown
 import com.okay.paceto_doapp.ui.presentation.components.DatePickerField
 import com.okay.paceto_doapp.ui.presentation.components.FormTextField
@@ -70,11 +75,18 @@ fun TaskFormScreen(
         }
     }
 
+    LaunchedEffect(Unit) {
+        viewModel.navigateBack.collect {
+            onNavigateBack()
+        }
+    }
+
     TaskFormContent(
         state = state,
         onEvent = viewModel::onEvent,
-        onNavigateBack,
-        scrollState
+        onNavigateBack = onNavigateBack,
+        scrollState = scrollState,
+        snackbarHostState = snackbarHostState
     )
 }
 
@@ -85,18 +97,22 @@ fun TaskFormContent(
     state: TaskFormState,
     onEvent: (TaskFormEvent) -> Unit,
     onNavigateBack: () -> Unit,
-    scrollState: ScrollState
+    scrollState: ScrollState,
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
 ) {
     var showStartDatePicker by remember { mutableStateOf(false) }
     var showEndDatePicker by remember { mutableStateOf(false) }
+    val isDateRangeValid = state.endDate.isAfter(state.startDate)
+    val actionLabel = if (state.id == null) "Create Task" else "Save Changes"
 
     Scaffold(
         containerColor = Color.Transparent,
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = "Create Task",
+                        text = state.topBarTitle,
                         fontWeight = FontWeight.Bold
                     )
                 },
@@ -110,7 +126,7 @@ fun TaskFormContent(
                     titleContentColor = MaterialTheme.colorScheme.primary
                 ),
                 navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
+                    IconButton(onClick = { onEvent(TaskFormEvent.CancelTask) }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "back"
@@ -130,7 +146,7 @@ fun TaskFormContent(
                     .fillMaxWidth()
                     .padding(start = 16.dp, end = 16.dp, bottom = 24.dp),
                 elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp),
-                enabled = state.title.isNotBlank() && state.endDate.isAfter(state.startDate)
+                enabled = !state.isSaving && state.title.isNotBlank() && isDateRangeValid
                 ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -139,10 +155,10 @@ fun TaskFormContent(
                 ) {
                     Icon(
                         imageVector = Icons.Filled.CheckCircle,
-                        contentDescription = "Create Task"
+                        contentDescription = actionLabel
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Create Task")
+                    Text(actionLabel)
                 }
             }
         }
@@ -192,6 +208,14 @@ fun TaskFormContent(
                         selectedDate = state.endDate,
                         onClick = { showEndDatePicker = true }
                     )
+                    if (!isDateRangeValid) {
+                        Text(
+                            text = "End date must be after start date",
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(top = 8.dp)
+                        )
+                    }
                 }
             }
 
@@ -207,6 +231,46 @@ fun TaskFormContent(
                         onEvent(TaskFormEvent.CategorySelected(newCategory))
                     }
                 )
+            }
+
+            // Priority Card
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(
+                        text = "PRIORITY",
+                        color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.labelLarge.copy(
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 1.5.sp
+                        ),
+                        modifier = Modifier.padding(bottom = 8.dp, start = 4.dp)
+                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Priority.entries.forEach { priority ->
+                            FilterChip(
+                                selected = state.priority == priority,
+                                onClick = { onEvent(TaskFormEvent.PrioritySelected(priority)) },
+                                label = {
+                                    Text(
+                                        text = priority.name.lowercase().replaceFirstChar { it.uppercase() }
+                                    )
+                                },
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                    selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                ),
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                    }
+                }
             }
 
             Spacer(modifier = Modifier.height(innerPadding.calculateBottomPadding() + 24.dp))
