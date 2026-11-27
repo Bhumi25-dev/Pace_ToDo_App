@@ -7,15 +7,18 @@ import com.okay.paceto_doapp.data.repo.TaskRepo
 import com.okay.paceto_doapp.notification.TaskCountdownService
 import com.okay.paceto_doapp.ui.presentation.events.CalendarUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.YearMonth
 import javax.inject.Inject
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class CalendarVM @Inject constructor(
     private val repo: TaskRepo
@@ -24,25 +27,21 @@ class CalendarVM @Inject constructor(
     private val _state = MutableStateFlow(CalendarUiState())
     val state = _state.asStateFlow()
 
+    private val visibleMonth = MutableStateFlow(YearMonth.now())
+
     init {
-        loadTasksForMonth(date=LocalDateTime.now())
+        observeVisibleMonthTasks()
     }
 
-    private fun loadTasksForMonth(date: LocalDateTime)
-    {
+    private fun observeVisibleMonthTasks() {
         viewModelScope.launch {
-            _state.update { it.copy(isLoading = true) }
-
-            val startDate: LocalDateTime = date
-                .toLocalDate()
-                .withDayOfMonth(1)
-                .atStartOfDay()
-            val endDate: LocalDateTime = date
-                .toLocalDate()
-                .withDayOfMonth(date.toLocalDate().lengthOfMonth())
-                .atTime(LocalTime.MAX)
-
-            repo.getTasksForTimeRange(startDate = startDate, endDate = endDate)
+            visibleMonth
+                .flatMapLatest { month ->
+                    _state.update { it.copy(isLoading = true) }
+                    val startDate = month.atDay(1).atStartOfDay()
+                    val endDate = month.atEndOfMonth().atTime(LocalTime.MAX)
+                    repo.getTasksForTimeRange(startDate = startDate, endDate = endDate)
+                }
                 .collect { taskList ->
                     val groupedMap = taskList.groupBy { it.endDate.toLocalDate() }
 
@@ -63,14 +62,14 @@ class CalendarVM @Inject constructor(
         _state.update { currentState ->
             currentState.copy(
                 selectedDate = date,
-                selectedDateTasks = state.value.tasksByDate[date] ?: emptyList()
+                selectedDateTasks = currentState.tasksByDate[date] ?: emptyList()
             )
         }
     }
 
-    fun onMonthScrolled(date: LocalDateTime)
+    fun onMonthScrolled(month: YearMonth)
     {
-        loadTasksForMonth(date)
+        visibleMonth.value = month
     }
 
     fun toggleTaskCompleted(taskId: String, isCompleted: Boolean) {

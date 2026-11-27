@@ -23,10 +23,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -42,6 +44,7 @@ import com.okay.paceto_doapp.ui.presentation.components.TaskDetailsDialog
 import com.okay.paceto_doapp.ui.presentation.components.TaskScreenCard
 import com.okay.paceto_doapp.ui.presentation.components.TopAppBarText
 import com.okay.paceto_doapp.ui.presentation.viewModel.CalendarVM
+import kotlinx.coroutines.flow.distinctUntilChanged
 import java.time.DayOfWeek
 import java.time.YearMonth
 
@@ -66,6 +69,14 @@ fun CalendarScreen(
         firstVisibleMonth = currentMonth,
         firstDayOfWeek = DayOfWeek.MONDAY
     )
+
+    LaunchedEffect(calendarState) {
+        snapshotFlow { calendarState.firstVisibleMonth.yearMonth }
+            .distinctUntilChanged()
+            .collect { visibleMonth ->
+                viewModel.onMonthScrolled(visibleMonth)
+            }
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
